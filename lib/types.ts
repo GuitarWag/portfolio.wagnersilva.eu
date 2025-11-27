@@ -44,6 +44,8 @@ export interface SlideData {
     showLocation?: boolean;
     currentLocation?: string;
     targetLocation?: string;
+    // Video explanation for the slide
+    videoUrl?: string;
 }
 
 export interface PresentationData {

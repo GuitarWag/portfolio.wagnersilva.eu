@@ -3,6 +3,7 @@ export { bambuserFullStack } from './bambuser-fullstack';
 export { dataEngineerGeneric } from './data-engineer-generic';
 export { upworkPortfolio } from './upwork-portfolio';
 export { hemnetFullStack } from './hemnet-fullstack';
+export { stockholmFullPortfolio } from './stockholm-full-portfolio';
 
 // Composer for custom presentations
 export { buildPresentation, buildQuickPresentation } from '../composer';
@@ -19,6 +20,7 @@ import { bambuserFullStack } from './bambuser-fullstack';
 import { dataEngineerGeneric } from './data-engineer-generic';
 import { upworkPortfolio } from './upwork-portfolio';
 import { hemnetFullStack } from './hemnet-fullstack';
+import { stockholmFullPortfolio } from './stockholm-full-portfolio';
 
 // Registry of all pre-built presentations
 export const presentationsRegistry: Record<string, PresentationData> = {
@@ -26,6 +28,7 @@ export const presentationsRegistry: Record<string, PresentationData> = {
     'data-engineer-generic': dataEngineerGeneric,
     'upwork-portfolio': upworkPortfolio,
     'hemnet-fullstack': hemnetFullStack,
+    'stockholm-full-portfolio': stockholmFullPortfolio,
 };
 
 // Get presentation by ID

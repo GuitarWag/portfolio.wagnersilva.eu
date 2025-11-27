@@ -59,6 +59,8 @@ export interface PresentationBuildConfig {
     includeCostImpact?: boolean;
     includeAchievements?: boolean;
     includeWhyStockholm?: boolean;
+    // Global video URL for all slides (can be overridden per slide if needed)
+    videoUrl?: string;
 }
 
 // Build a complete presentation from config
@@ -172,6 +174,15 @@ export function buildPresentation(config: PresentationBuildConfig): Presentation
         slides.push(createFullStackClosingSlide(profile));
     } else {
         slides.push(createDataEngineerClosingSlide(profile));
+    }
+
+    // Apply global video URL if present and not already set on slide
+    if (config.videoUrl) {
+        slides.forEach(slide => {
+            if (!slide.videoUrl) {
+                slide.videoUrl = config.videoUrl;
+            }
+        });
     }
 
     return {

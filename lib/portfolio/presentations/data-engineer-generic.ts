@@ -53,9 +53,12 @@ const config: PresentationBuildConfig = {
         }
     ],
     includeTechStack: true,
-    includeCostImpact: true,
-    includeAchievements: true,
     includeWhyStockholm: true,
 };
 
 export const dataEngineerGeneric: PresentationData = buildPresentation(config);
+
+// Add video to the first slide only
+if (dataEngineerGeneric.slides.length > 0) {
+    dataEngineerGeneric.slides[0].videoUrl = 'https://storage.googleapis.com/wagnersilva-eu-assets/placeholder.mp4';
+}

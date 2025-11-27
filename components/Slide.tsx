@@ -4,6 +4,7 @@ import React from 'react';
 import type { SlideData, IconName } from '@/lib/types';
 import { Diagram } from './Diagram';
 import { MermaidDiagram } from './MermaidDiagram';
+import { PresenterVideo } from './PresenterVideo';
 import {
     Shield, MapPin, Code2, Cloud, Database, Globe, Zap,
     TrendingDown, Users, Server, Lock, Rocket, FileCheck,
@@ -348,7 +349,8 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
     return (
         <div className={baseClasses}>
             {renderContent()}
-            <div className="absolute bottom-4 right-4 text-gray-400 text-sm font-medium">
+            {slide.videoUrl && <PresenterVideo src={slide.videoUrl} id={slide.id} />}
+            <div className="absolute bottom-4 left-16 text-gray-400 text-sm font-medium">
                 {slideNumber} / {totalSlides}
             </div>
         </div>

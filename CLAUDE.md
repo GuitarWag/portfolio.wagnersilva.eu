@@ -16,6 +16,10 @@ npm run lint      # Run ESLint on codebase
 npm run pdf       # Export PDF via Puppeteer (requires dev server running)
 ```
 
+## How to read app logs in development
+
+just tail the server.log file
+
 ## Architecture Overview
 
 ### Next.js App Router Structure
