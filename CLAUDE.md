@@ -9,28 +9,47 @@ Data-driven presentation generator that converts structured TypeScript data into
 ## Development Commands
 
 ```bash
-npm run dev       # Start Vite dev server with HMR
-npm run build     # TypeScript check + Vite production build
-npm run preview   # Preview production build locally
+npm run dev       # Start Next.js dev server with Turbopack
+npm run build     # Production build
+npm run start     # Run production build locally
 npm run lint      # Run ESLint on codebase
+npm run pdf       # Export PDF via Puppeteer (requires dev server running)
 ```
 
 ## Architecture Overview
 
-### Data-Driven Flow
-1. **Data Definition** (`src/data/*.ts`) → TypeScript objects define slide content
-2. **Type System** (`src/types.ts`) → SlideData interface with 9 layout types
-3. **Rendering** (`src/components/`) → Layout-specific rendering logic
-4. **Export** → Browser print to PDF (landscape, exact colors)
+### Next.js App Router Structure
+```
+app/
+  ├── layout.tsx      # Root layout with metadata
+  ├── globals.css     # Tailwind + print styles
+  └── page.tsx        # Home page rendering presentation
+components/
+  ├── Presentation.tsx  # Print/PDF buttons, slide container ('use client')
+  ├── Slide.tsx         # Layout router with icon mapping ('use client')
+  ├── Diagram.tsx       # ReactFlow wrapper ('use client')
+  └── MermaidDiagram.tsx # Mermaid chart renderer ('use client')
+lib/
+  ├── types.ts          # SlideData, PresentationData, IconName types
+  └── data/             # Presentation data files
+      ├── new-presentation.ts
+      └── portfolio-data-engineer.ts
+public/
+  ├── gcp-icons/        # GCP service icons for diagrams
+  └── wagner.png        # Profile image
+```
 
-### Component Hierarchy
-```
-App.tsx
-  └─ Presentation.tsx (print button, slide container)
-      └─ Slide.tsx (layout router)
-          ├─ Diagram.tsx (ReactFlow wrapper for architecture diagrams)
-          └─ Layout renderers (inline switch statement)
-```
+### Data-Driven Flow
+1. **Data Definition** (`lib/data/*.ts`) → TypeScript objects define slide content
+2. **Type System** (`lib/types.ts`) → SlideData interface with 9 layout types, IconName union
+3. **Rendering** (`components/`) → Client components with layout-specific rendering
+4. **Export** → Browser print to PDF or html2pdf.js download
+
+### Icon System (Server/Client Boundary)
+- Icons are passed as **string names** (e.g., `'Code2'`, `'Cloud'`) to avoid serialization issues
+- `IconName` type union in `lib/types.ts` defines allowed icon names
+- `iconMap` in `Slide.tsx` maps string names to Lucide components
+- Add new icons: update `IconName` type and `iconMap` object
 
 ### Layout Types & Usage
 - `title-only` → Hero slides (opening, closing)
@@ -38,7 +57,7 @@ App.tsx
 - `grid-cards` → Metrics/stats showcase (2-6 cards)
 - `two-column` / `three-column` → Side-by-side content
 - `split-image` → Text content + diagram/image placeholder
-- `project-detail` → Challenge/Solution/Impact + full diagram area
+- `project-detail` → Context/Challenge/Solution/Impact + diagram area
 - `bullets` → Traditional bullet list
 - `full-image` → Background image with overlay
 
@@ -46,27 +65,35 @@ App.tsx
 - **Component**: `Diagram.tsx` uses `@xyflow/react`
 - **Data Format**: Pass `{ nodes: [], edges: [] }` in `SlideData.diagram`
 - **Node Types**: Custom `iconNode` type with GCP service icons
-- **Icon Source**: `src/gcp-icons/[Service Name]/PNG/[Service]-512-color.png`
+- **Icon Source**: `/gcp-icons/[Service Name]/PNG/[Service]-512-color.png`
+
+### Mermaid Diagrams
+- **Component**: `MermaidDiagram.tsx` renders Mermaid flowcharts
+- **Data Format**: Pass Mermaid syntax string in `SlideData.mermaid`
+- **Styling**: Custom theme variables for consistent look
 
 ### GCP Icons Directory
-19 GCP services available in `src/gcp-icons/`:
+19 GCP services available in `public/gcp-icons/`:
 - Each service has PNG + SVG formats in subdirectories
 - Naming: `[ServiceName]-512-color.{png|svg}`
-- Use in diagrams by referencing: `/src/gcp-icons/[Service]/PNG/[icon].png`
+- Use in diagrams: `/gcp-icons/[Service]/PNG/[icon].png`
 
 ### Print/PDF System
-- **CSS**: `src/index.css` defines print media queries
+- **CSS**: `app/globals.css` defines print media queries
 - **Layout**: Landscape orientation, zero margins
 - **Color**: `print-color-adjust: exact` preserves colors
 - **Pagination**: `break-after-page` class on slides
-- **Export**: Browser's print dialog → Save as PDF
+- **Export Options**:
+  - Browser print dialog → Save as PDF
+  - html2pdf.js download button (dynamically imported)
 
 ## Creating New Presentations
 
-1. **Define Data**: Create `src/data/[name].ts` following `PresentationData` interface
-2. **Import in App**: Replace `portfolioData` import in `App.tsx`
-3. **Icon Usage**: Reference GCP icons from `src/gcp-icons/` for diagram nodes
-4. **Diagram Nodes**: Use `type: 'iconNode'` with `data.icon` pointing to icon path
+1. **Define Data**: Create `lib/data/[name].ts` following `PresentationData` interface
+2. **Use String Icons**: Reference icons by name string (e.g., `icon: 'Code2'`)
+3. **Import in page.tsx**: Update import to use new data file
+4. **Icon Usage**: For diagrams, reference GCP icons from `/gcp-icons/`
+5. **Diagram Nodes**: Use `type: 'iconNode'` with `data.icon` pointing to public icon path
 
 ## Styling Approach
 
@@ -78,9 +105,14 @@ App.tsx
 ## Common Patterns
 
 ### Adding New Slide Layout
-1. Add layout type to `SlideData['layout']` union in `types.ts`
-2. Add case to switch statement in `Slide.tsx` renderContent()
+1. Add layout type to `SlideData['layout']` union in `lib/types.ts`
+2. Add case to switch statement in `components/Slide.tsx` renderContent()
 3. Implement rendering logic with consistent spacing (p-8, p-16)
+
+### Adding New Icons
+1. Add icon name to `IconName` union in `lib/types.ts`
+2. Import icon from `lucide-react` in `components/Slide.tsx`
+3. Add to `iconMap` object in `components/Slide.tsx`
 
 ### Creating Architecture Diagrams
 ```typescript
@@ -92,7 +124,7 @@ diagram: {
       position: { x: 100, y: 100 },
       data: {
         label: 'BigQuery',
-        icon: '/src/gcp-icons/BigQuery/PNG/BigQuery-512-color.png'
+        icon: '/gcp-icons/BigQuery/PNG/BigQuery-512-color.png'
       }
     }
   ],
@@ -102,9 +134,19 @@ diagram: {
 }
 ```
 
+### Using Mermaid Diagrams
+```typescript
+mermaid: `flowchart LR
+  A[Client] --> B[Server]
+  B --> C[(Database)]
+  style A fill:#dbeafe,stroke:#3b82f6
+  style B fill:#dcfce7,stroke:#22c55e
+  style C fill:#e0e7ff,stroke:#6366f1`
+```
+
 ## Important Constraints
 
-- **Not Mobile Responsive**: Designed for landscape print, fixed 1920x1080 viewport
-- **No Version Control**: Repository not initialized as git repo
+- **Not Mobile Responsive**: Designed for landscape print, fixed viewport
 - **Static Data**: All content defined at compile time in TypeScript files
-- **Print-Only Export**: No programmatic PDF generation, relies on browser print
+- **Client Components**: All interactive components use 'use client' directive
+- **Icon Serialization**: Icons must be string names, not component references

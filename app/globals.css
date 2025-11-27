@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Remove shadows that render poorly in print */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure images render cleanly */
+  img {
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  /* Keep borders for visual structure */
+  .border-blue-600 {
+    border-color: #2563eb !important;
+  }
+}
