@@ -22,11 +22,14 @@ export function createFullStackTitleSlide(
 ): SlideData {
     return {
         id: 'title',
-        title: `Full Stack Web Developer Application`,
-        subtitle: profile.name,
+        title: profile.name,
+        subtitle: 'Full Stack Web Developer | Cloud Architect',
         layout: 'title-only',
         footer: `${profile.yearsExperience} Years Building Scalable Web Platforms`,
-        image: profile.image
+        image: profile.image,
+        showLocation: true,
+        currentLocation: profile.currentLocation,
+        targetLocation: profile.targetLocation
     };
 }
 
@@ -37,10 +40,14 @@ export function createDataEngineerTitleSlide(
 ): SlideData {
     return {
         id: 'title',
-        title: 'Data Engineering & Cloud Architecture Portfolio',
-        subtitle: 'GCP Solutions Delivering Measurable Business Impact',
+        title: profile.name,
+        subtitle: 'Data Engineer | Cloud Architect | GCP Expert',
         layout: 'title-only',
-        footer: `${profile.name} | GCP Architect & Senior Data Engineer`
+        footer: `${profile.yearsExperience} Years Building Production Data Systems`,
+        image: profile.image,
+        showLocation: true,
+        currentLocation: profile.currentLocation,
+        targetLocation: profile.targetLocation
     };
 }
 

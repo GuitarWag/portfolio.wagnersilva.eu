@@ -40,6 +40,10 @@ export interface SlideData {
         color?: 'blue' | 'green' | 'orange' | 'purple' | 'gray';
     }[];
     footer?: string | string[];
+    // Location display for relocation-focused presentations
+    showLocation?: boolean;
+    currentLocation?: string;
+    targetLocation?: string;
 }
 
 export interface PresentationData {

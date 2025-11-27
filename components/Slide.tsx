@@ -54,12 +54,12 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                                     : slide.footer}
                             </div>
                         )}
-                        {slide.id === 'title' && (
+                        {slide.showLocation && slide.currentLocation && slide.targetLocation && (
                             <div className="mt-8 flex items-center gap-3 text-2xl text-gray-600">
                                 <MapPin size={28} className="text-blue-600" />
-                                <span className="font-medium">Lisbon</span>
+                                <span className="font-medium">{slide.currentLocation}</span>
                                 <span className="text-blue-600">→</span>
-                                <span className="font-medium">Stockholm</span>
+                                <span className="font-medium">{slide.targetLocation}</span>
                             </div>
                         )}
                     </div>

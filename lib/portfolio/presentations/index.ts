@@ -1,6 +1,8 @@
 // Pre-built presentations
 export { bambuserFullStack } from './bambuser-fullstack';
 export { dataEngineerGeneric } from './data-engineer-generic';
+export { upworkPortfolio } from './upwork-portfolio';
+export { hemnetFullStack } from './hemnet-fullstack';
 
 // Composer for custom presentations
 export { buildPresentation, buildQuickPresentation } from '../composer';
@@ -15,11 +17,15 @@ export type { ProjectData, ProfileData, TargetConfig, ProjectCategory } from '..
 import type { PresentationData } from '@/lib/types';
 import { bambuserFullStack } from './bambuser-fullstack';
 import { dataEngineerGeneric } from './data-engineer-generic';
+import { upworkPortfolio } from './upwork-portfolio';
+import { hemnetFullStack } from './hemnet-fullstack';
 
 // Registry of all pre-built presentations
 export const presentationsRegistry: Record<string, PresentationData> = {
     'bambuser-fullstack': bambuserFullStack,
     'data-engineer-generic': dataEngineerGeneric,
+    'upwork-portfolio': upworkPortfolio,
+    'hemnet-fullstack': hemnetFullStack,
 };
 
 // Get presentation by ID
