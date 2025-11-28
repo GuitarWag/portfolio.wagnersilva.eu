@@ -113,12 +113,14 @@ if (whatIBringIndex !== -1) {
 const placeholderVideo = 'https://storage.googleapis.com/wagnersilva-eu-assets/placeholder.mp4';
 if (stockholmFullPortfolio.slides.length > 0) {
     stockholmFullPortfolio.slides[0].videoUrl = placeholderVideo;
+    stockholmFullPortfolio.slides[0].videoTranscript = '';
 }
 // Find first project slide and add video
 const firstProjectSlide = stockholmFullPortfolio.slides.find(s => s.id.startsWith('project-'));
 if (firstProjectSlide) {
     firstProjectSlide.videoUrl = placeholderVideo;
     firstProjectSlide.videoPosition = 'tr';
+    firstProjectSlide.videoTranscript = '';
 }
 
 // Find second project slide (rag-system) and add video
@@ -126,6 +128,7 @@ const ragProjectSlide = stockholmFullPortfolio.slides.find(s => s.id === 'projec
 if (ragProjectSlide) {
     ragProjectSlide.videoUrl = placeholderVideo;
     ragProjectSlide.videoPosition = 'br';
+    ragProjectSlide.videoTranscript = '';
 }
 
 // Find tri-directional-sync project and add video
@@ -133,6 +136,7 @@ const triSyncSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-t
 if (triSyncSlide) {
     triSyncSlide.videoUrl = placeholderVideo;
     triSyncSlide.videoPosition = 'br';
+    triSyncSlide.videoTranscript = '';
 }
 
 // Find cost-optimization project and add video
@@ -140,6 +144,7 @@ const costOptSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-c
 if (costOptSlide) {
     costOptSlide.videoUrl = placeholderVideo;
     costOptSlide.videoPosition = 'tr';
+    costOptSlide.videoTranscript = '';
 }
 
 // Find rls-security project and add video
@@ -147,6 +152,7 @@ const rlsSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-rls-s
 if (rlsSlide) {
     rlsSlide.videoUrl = placeholderVideo;
     rlsSlide.videoPosition = 'tr';
+    rlsSlide.videoTranscript = '';
 }
 
 // Find sftp-architecture project and add video
@@ -154,6 +160,7 @@ const sftpSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-sftp
 if (sftpSlide) {
     sftpSlide.videoUrl = placeholderVideo;
     sftpSlide.videoPosition = 'tr';
+    sftpSlide.videoTranscript = '';
 }
 
 // Find api-integration project and add video
@@ -161,6 +168,7 @@ const apiSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-api-i
 if (apiSlide) {
     apiSlide.videoUrl = placeholderVideo;
     apiSlide.videoPosition = 'bl';
+    apiSlide.videoTranscript = '';
 }
 
 // Find cicd-pipeline project and add video
@@ -168,6 +176,7 @@ const cicdSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cicd
 if (cicdSlide) {
     cicdSlide.videoUrl = placeholderVideo;
     cicdSlide.videoPosition = 'br';
+    cicdSlide.videoTranscript = '';
 }
 
 // Find apisix-gateway project and add video
@@ -175,6 +184,7 @@ const apisixSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-ap
 if (apisixSlide) {
     apisixSlide.videoUrl = placeholderVideo;
     apisixSlide.videoPosition = 'tr';
+    apisixSlide.videoTranscript = '';
 }
 
 // Find cdc-pipeline project and add video
@@ -182,6 +192,7 @@ const cdcSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cdc-p
 if (cdcSlide) {
     cdcSlide.videoUrl = placeholderVideo;
     cdcSlide.videoPosition = 'tr';
+    cdcSlide.videoTranscript = '';
 }
 
 // Find db-anonymization project and add video
@@ -189,6 +200,7 @@ const dbAnonSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-db
 if (dbAnonSlide) {
     dbAnonSlide.videoUrl = placeholderVideo;
     dbAnonSlide.videoPosition = 'tr';
+    dbAnonSlide.videoTranscript = '';
 }
 
 // Find sharepoint-leadership project and add video
@@ -196,4 +208,5 @@ const leadershipSlide = stockholmFullPortfolio.slides.find(s => s.id === 'projec
 if (leadershipSlide) {
     leadershipSlide.videoUrl = placeholderVideo;
     leadershipSlide.videoPosition = 'tr';
+    leadershipSlide.videoTranscript = '';
 }

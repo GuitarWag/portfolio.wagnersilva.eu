@@ -48,6 +48,7 @@ export interface SlideData {
     currentLocation?: string;
     targetLocation?: string;
     // Video explanation for the slide
+    videoTranscript?: string;
     videoUrl?: string;
     videoPosition?: 'tr' | 'br' | 'bl' | 'tl' | 'center';
 }
