@@ -23,9 +23,9 @@ export function createFullStackTitleSlide(
     return {
         id: 'title',
         title: profile.name,
-        subtitle: 'Full Stack Web Developer | Cloud Architect',
+        subtitle: 'Software Engineer | Cloud Architect | Data Engineer',
         layout: 'title-only',
-        footer: `${profile.yearsExperience} Years Building Scalable Web Platforms`,
+        footer: `${profile.yearsExperience} of Pragmatic Software & Data Engineering - Scalable Cloud Solutions, Proven Impact`,
         image: profile.image,
         showLocation: true,
         currentLocation: profile.currentLocation,
@@ -55,13 +55,13 @@ export function createDataEngineerTitleSlide(
 export function createFullStackGlanceSlide(profile: ProfileData): SlideData {
     return {
         id: 'at-a-glance',
-        title: 'At a Glance',
+        title: 'Portfolio At a Glance',
         layout: 'grid-cards',
         cards: [
-            { icon: 'Code2', title: `${profile.yearsExperience} Years`, value: 'Full Stack', description: 'TypeScript, React, Node.js' },
-            { icon: 'Cloud', title: 'GCP Native', value: 'Cloud Expert', description: 'Primary platform throughout career' },
-            { icon: 'TrendingDown', title: '€48K+', value: 'Cost Savings', description: 'Proven business impact' },
-            { icon: 'Globe', title: 'Global Scale', value: 'Enterprise', description: 'EMEA, APAC, Americas' }
+            { icon: 'Code2', title: 'Software Engineering', value: `${profile.yearsExperience} Years Across Stack`, description: 'System design, APIs, databases, DevOps - from concept to production' },
+            { icon: 'Cloud', title: 'GCP Specialist', value: '6+ Years on Google Cloud', description: 'BigQuery, Cloud Run, Cloud SQL, GKE, Vertex AI, and the whole stack of services' },
+            { icon: 'TrendingDown', title: 'Cost Savings', value: '€48K+ Annual Value Delivered', description: 'Infrastructure optimization' },
+            { icon: 'Globe', title: 'Enterprise', value: 'Global Scale', description: 'Production systems across EMEA, APAC, Americas' }
         ]
     };
 }
@@ -224,5 +224,17 @@ export function createGrowthAreasSlide(areasForGrowth: string[]): SlideData {
         title: 'Areas for Growth',
         layout: 'bullets',
         content: areasForGrowth
+    };
+}
+
+// Skills slide with chips
+export function createSkillsSlide(hardSkills: string[], softSkills: string[]): SlideData {
+    return {
+        id: 'skills',
+        title: 'Skills',
+        layout: 'skills-chips',
+        hardSkills,
+        softSkills,
+        footer: "Each project taught me something new. I'm not done learning."
     };
 }

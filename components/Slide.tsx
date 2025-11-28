@@ -9,7 +9,7 @@ import {
     Shield, MapPin, Code2, Cloud, Database, Globe, Zap,
     TrendingDown, Users, Server, Lock, Rocket, FileCheck,
     Calendar, Mail, CheckCircle2, DollarSign, Sparkles, Bot, Puzzle,
-    LucideIcon
+    GitMerge, LucideIcon
 } from 'lucide-react';
 
 // Icon mapping for serializable icon names
@@ -17,7 +17,7 @@ const iconMap: Record<IconName, LucideIcon> = {
     Code2, Cloud, Database, Globe, Shield, Zap,
     TrendingDown, Users, Server, Lock, MapPin, Rocket,
     FileCheck, Calendar, Mail, CheckCircle2, DollarSign,
-    Sparkles, Bot, Puzzle
+    Sparkles, Bot, Puzzle, GitMerge
 };
 
 interface SlideProps {
@@ -43,8 +43,26 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                                 />
                             </div>
                         )}
+                        {slide.id === 'closing' && (
+                            <div className="mb-6">
+                                <img
+                                    src="/ribbon.svg"
+                                    alt="Swedish Ribbon"
+                                    className="w-40 h-40"
+                                />
+                            </div>
+                        )}
                         <h1 className="text-7xl font-bold text-gray-900 mb-6">{slide.title}</h1>
-                        {slide.subtitle && <h2 className="text-4xl text-gray-600 font-light">{slide.subtitle}</h2>}
+                        {slide.subtitle && (
+                            <h2 className="text-4xl text-gray-600 font-light">
+                                {slide.subtitle.split('\n').map((line, i) => (
+                                    <span key={i} className={i === 0 ? 'text-5xl font-bold text-gray-800 block mb-2' : ''}>
+                                        {i > 0 && <br />}
+                                        {line}
+                                    </span>
+                                ))}
+                            </h2>
+                        )}
                         {slide.content && slide.content.length > 0 && (
                             <div className="mt-8 text-5xl font-bold text-blue-600">{slide.content[0]}</div>
                         )}
@@ -89,11 +107,11 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                     </div>
                 );
             case 'grid-cards':
-                const gridCols = slide.cards && slide.cards.length > 4 ? 'grid-cols-3' : 'grid-cols-2';
+                const gridCols = slide.cards && slide.cards.length >= 8 ? 'grid-cols-4' : (slide.cards && slide.cards.length > 4 ? 'grid-cols-3' : 'grid-cols-2');
                 return (
-                    <div className="flex-1 flex flex-col p-8 overflow-visible">
-                        <h2 className="text-5xl font-bold text-gray-900 mb-8 text-center">{slide.title}</h2>
-                        <div className={`grid ${gridCols} gap-6 place-content-center`}>
+                    <div className="flex-1 flex flex-col p-4 overflow-visible">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-3 text-center">{slide.title}</h2>
+                        <div className={`grid ${gridCols} gap-4 flex-1`}>
                             {slide.cards?.map((card, index) => {
                                 const Icon = card.icon ? iconMap[card.icon] : null;
                                 return (
@@ -103,9 +121,9 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                                                 <Icon size={48} strokeWidth={1.5} />
                                             </div>
                                         )}
-                                        <div className="text-5xl font-bold text-blue-600 mb-3">{card.value}</div>
-                                        <div className="text-2xl font-semibold text-gray-800 mb-2">{card.title}</div>
-                                        <div className="text-lg text-gray-500">{card.description}</div>
+                                        <div className="text-4xl font-bold text-blue-600 mb-3">{card.value}</div>
+                                        <div className="text-xl font-semibold text-gray-800 mb-2">{card.title}</div>
+                                        <div className="text-base text-gray-500">{card.description}</div>
                                     </div>
                                 );
                             })}
@@ -341,6 +359,107 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                         </div>
                     </div>
                 );
+            case 'skills-chips':
+                return (
+                    <div className="flex-1 flex flex-col p-12">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-10 text-center">{slide.title}</h2>
+                        <div className="flex-1 flex flex-col gap-10">
+                            {slide.hardSkills && slide.hardSkills.length > 0 && (
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-700 mb-4 uppercase tracking-wider">Hard Skills</h3>
+                                    <div className="flex flex-wrap gap-3">
+                                        {slide.hardSkills.map((skill, i) => (
+                                            <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium border border-blue-200">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {slide.softSkills && slide.softSkills.length > 0 && (
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-700 mb-4 uppercase tracking-wider">Soft Skills</h3>
+                                    <div className="flex flex-wrap gap-3">
+                                        {slide.softSkills.map((skill, i) => (
+                                            <span key={i} className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium border border-emerald-200">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        {slide.footer && (
+                            <div className="mt-auto pt-6 text-center text-gray-500 text-xl italic">
+                                {Array.isArray(slide.footer) ? slide.footer.join(' ') : slide.footer}
+                            </div>
+                        )}
+                    </div>
+                );
+            case 'why-stockholm':
+                return (
+                    <div className="flex-1 flex flex-col p-12 bg-gradient-to-br from-blue-50 to-white">
+                        <h2 className="text-5xl font-bold text-gray-900 mb-4 text-center">{slide.title}</h2>
+                        {slide.subtitle && (
+                            <p className="text-2xl text-gray-600 text-center mb-12 italic">{slide.subtitle}</p>
+                        )}
+                        <div className="grid grid-cols-3 gap-8 flex-1">
+                            {slide.columns?.map((col, index) => (
+                                <div key={index} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col">
+                                    <h3 className="text-2xl font-bold text-blue-700 mb-6">{col.title}</h3>
+                                    <p className="text-xl text-gray-700 leading-relaxed">
+                                        {col.content[0]}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                        {slide.footer && (
+                            <div className="mt-10 text-center text-xl text-gray-600 italic max-w-4xl mx-auto">
+                                {Array.isArray(slide.footer) ? slide.footer.join(' ') : slide.footer}
+                            </div>
+                        )}
+                    </div>
+                );
+            case 'logistics':
+                return (
+                    <div className="flex-1 flex flex-col p-8 overflow-visible">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">{slide.title}</h2>
+                        <div className="grid grid-cols-2 gap-6 place-content-center">
+                            {slide.cards?.map((card, index) => {
+                                const Icon = card.icon ? iconMap[card.icon] : null;
+                                // Parse links from description: "url|text||url|text"
+                                const parseLinks = (desc: string) => {
+                                    if (!desc.includes('|')) return <span>{desc}</span>;
+                                    const parts = desc.split('||');
+                                    return (
+                                        <span className="flex flex-col gap-1">
+                                            {parts.map((part, i) => {
+                                                const [url, text] = part.split('|');
+                                                return (
+                                                    <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                        {text}
+                                                    </a>
+                                                );
+                                            })}
+                                        </span>
+                                    );
+                                };
+                                return (
+                                    <div key={index} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center justify-center text-center">
+                                        {Icon && (
+                                            <div className="text-blue-600 mb-4">
+                                                <Icon size={48} strokeWidth={1.5} />
+                                            </div>
+                                        )}
+                                        <div className="text-5xl font-bold text-blue-600 mb-3">{card.value}</div>
+                                        <div className="text-2xl font-semibold text-gray-800 mb-2">{card.title}</div>
+                                        <div className="text-lg text-gray-500">{parseLinks(card.description || '')}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                );
             default:
                 return null;
         }
@@ -348,11 +467,15 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
 
     return (
         <div className={baseClasses}>
+            {/* Print-only portfolio link */}
+            <a
+                href="https://portfolio.wagnersilva.eu"
+                className="hidden print:block absolute top-4 left-4 text-sm text-blue-600 hover:underline"
+            >
+                portfolio.wagnersilva.eu
+            </a>
             {renderContent()}
-            {slide.videoUrl && <PresenterVideo src={slide.videoUrl} id={slide.id} />}
-            <div className="absolute bottom-4 left-16 text-gray-400 text-sm font-medium">
-                {slideNumber} / {totalSlides}
-            </div>
+            {slide.videoUrl && <PresenterVideo src={slide.videoUrl} id={slide.id} position={slide.videoPosition} />}
         </div>
     );
 };

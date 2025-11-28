@@ -3,36 +3,32 @@ import type { ProfileData, TargetConfig } from '../types';
 
 // Why Stockholm slide (reusable for any Stockholm target)
 export function createWhyStockholmSlide(roleType: 'full-stack' | 'data-engineer'): SlideData {
-    const careerMotivation = roleType === 'full-stack'
-        ? ['Specialization in Full Stack & GCP', 'Modern web architectures', 'Learning from Swedish tech excellence']
-        : ['Specialization in GCP Data Engineering', 'Modern data architectures', 'Learning from Swedish tech excellence'];
-
     return {
         id: 'motivation',
         title: 'Why Stockholm?',
-        layout: 'three-column',
+        subtitle: "This isn't just a job change - it's a life decision I've already committed to.",
+        layout: 'why-stockholm',
         columns: [
             {
-                title: 'Career Motivation',
-                content: careerMotivation
+                title: 'Career Growth',
+                content: [
+                    "Deep GCP specialization and engineering in Europe's leading tech ecosystem"
+                ]
             },
             {
                 title: 'Cultural Fit',
                 content: [
-                    'Appreciate Swedish values (honesty, equality)',
-                    'Cost-conscious mindset',
-                    'Quality over quantity philosophy'
+                    'Swedish values - pragmatism, honesty, work-life balance - align with how I work'
                 ]
             },
             {
-                title: 'Relocation',
+                title: 'Long-Term Commitment',
                 content: [
-                    'Targeting Stockholm specifically',
-                    'Ready to relocate (need Swedish work permit)',
-                    'Committed to long-term move'
+                    "I need work permit sponsorship, but this isn't short-term. I'm relocating my life to Stockholm, not just taking a job."
                 ]
             }
-        ]
+        ],
+        footer: "By sponsoring this move, you're not just filling a role - you're enabling a career transition I've planned deliberately. I'm ready to invest years here."
     };
 }
 
@@ -51,12 +47,12 @@ export function createLogisticsSlide(profile: ProfileData): SlideData {
     return {
         id: 'logistics',
         title: 'Logistics & Next Steps',
-        layout: 'grid-cards',
+        layout: 'logistics',
         cards: [
             { icon: 'MapPin', value: profile.currentLocation, title: 'Current Location', description: 'Ready to move' },
             { icon: 'FileCheck', value: 'Visa', title: 'Status', description: profile.visaStatus },
             { icon: 'Calendar', value: profile.startDate, title: 'Start Date', description: 'Flexible / Remote start' },
-            { icon: 'Mail', value: 'Contact', title: 'Get in Touch', description: 'Email / LinkedIn' }
+            { icon: 'Mail', value: 'Contact', title: 'Get in Touch', description: `mailto:${profile.email}|${profile.email}||https://${profile.linkedin}|LinkedIn` }
         ]
     };
 }
@@ -66,11 +62,10 @@ export function createFullStackClosingSlide(profile: ProfileData): SlideData {
     return {
         id: 'closing',
         title: 'Thank You',
-        subtitle: 'Ready to bring full stack excellence to Stockholm',
+        subtitle: `${profile.name}\nSoftware Engineer | Cloud Architect | Data Engineer`,
         layout: 'title-only',
-        content: ['Proven Impact'],
+        content: [],
         footer: [
-            `${profile.name} | Full Stack Web Developer`,
             `${profile.website} | ${profile.linkedin}`,
             profile.email
         ]
@@ -256,12 +251,14 @@ export function createAchievementsSlide(): SlideData {
         title: 'Core Strengths & Highlights',
         layout: 'grid-cards',
         cards: [
-            { icon: 'Puzzle', value: 'Reusable', title: 'Architectures', description: 'Proven at scale' },
-            { icon: 'Shield', value: 'Zero', title: 'Data Loss', description: 'Financial data protection' },
-            { icon: 'DollarSign', value: '€48K+', title: 'Savings Delivered', description: 'Cost efficiency' },
-            { icon: 'Lock', value: 'Security', title: 'First', description: 'Enterprise-grade' },
-            { icon: 'Globe', value: 'Global', title: 'Scale', description: 'Multi-continent ops' },
-            { icon: 'Rocket', value: 'Innovation', title: 'AI/ML', description: 'RAG & Agents' }
+            { icon: 'Shield', value: 'Zero', title: 'Data Loss', description: 'Financial & sensitive data' },
+            { icon: 'Lock', value: 'Security', title: 'First', description: 'RLS, IAP, PII masking' },
+            { icon: 'TrendingDown', value: '€15K+', title: 'Cost Savings', description: 'Efficient architectures' },
+            { icon: 'Puzzle', value: 'Reusable', title: 'Patterns', description: 'Libraries at scale' },
+            { icon: 'GitMerge', value: 'Complex', title: 'Integrations', description: 'Tri-sync, API workarounds' },
+            { icon: 'Bot', value: 'AI/ML', title: 'Innovation', description: 'RAG, Vertex AI, LLMs' },
+            { icon: 'Globe', value: '100K+', title: 'Global Scale', description: 'Users worldwide' },
+            { icon: 'Rocket', value: 'End-to-End', title: 'Ownership', description: 'Interviews to production' }
         ]
     };
 }

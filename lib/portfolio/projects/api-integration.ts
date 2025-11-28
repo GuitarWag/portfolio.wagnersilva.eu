@@ -19,7 +19,8 @@ export const apiIntegration: ProjectData = {
     solution: [
         'Python sync job with local timestamp filtering',
         'Hash-based deduplication to identify new records',
-        'Efficient delta loading to BigQuery'
+        'Efficient delta loading to BigQuery',
+        'BigQuery metadata table for load audit and tracking'
     ],
     impact: [
         'Real-time analytics operational (15-30 min freshness)',

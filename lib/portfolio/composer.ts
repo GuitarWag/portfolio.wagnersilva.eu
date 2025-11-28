@@ -14,6 +14,7 @@ import {
     createGCPExpertiseSlide,
     createRealTimeExperienceSlide,
     createGrowthAreasSlide,
+    createSkillsSlide,
     createWhyStockholmSlide,
     createWhyCompanySlide,
     createLogisticsSlide,
@@ -51,6 +52,9 @@ export interface PresentationBuildConfig {
     whyCompanyReasons?: string[];
     includeGrowthAreas?: boolean;
     growthAreas?: string[];
+    includeSkills?: boolean;
+    hardSkills?: string[];
+    softSkills?: string[];
     includeTechStack?: boolean;
     includeCapabilities?: boolean;
     includeGCPExpertise?: boolean;
@@ -80,6 +84,11 @@ export function buildPresentation(config: PresentationBuildConfig): Presentation
         slides.push(createFullStackGlanceSlide(profile));
     } else {
         slides.push(createDataEngineerGlanceSlide(profile));
+    }
+
+    // 2.5 Skills (optional)
+    if (config.includeSkills && config.hardSkills && config.softSkills) {
+        slides.push(createSkillsSlide(config.hardSkills, config.softSkills));
     }
 
     // 3. Why Company (optional)
@@ -117,6 +126,7 @@ export function buildPresentation(config: PresentationBuildConfig): Presentation
     }
 
     // 9. Projects - either sectioned or flat
+    let projectIndex = 1;
     if (config.sections) {
         for (const section of config.sections) {
             // Add section header
@@ -124,14 +134,14 @@ export function buildPresentation(config: PresentationBuildConfig): Presentation
             // Add projects in section
             const projects = getProjectsById(section.projectIds);
             for (const project of projects) {
-                slides.push(projectToSlide(project));
+                slides.push(projectToSlide(project, projectIndex++));
             }
         }
     } else if (config.projectIds) {
         // Flat list of projects
         const projects = getProjectsById(config.projectIds);
         for (const project of projects) {
-            slides.push(projectToSlide(project));
+            slides.push(projectToSlide(project, projectIndex++));
         }
     }
 

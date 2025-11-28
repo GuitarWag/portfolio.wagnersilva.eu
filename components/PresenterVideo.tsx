@@ -4,12 +4,23 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
 import { useVideoContext } from './VideoContext';
 
+type VideoPosition = 'tr' | 'br' | 'bl' | 'tl' | 'center';
+
 interface PresenterVideoProps {
     src: string;
     id: string;
+    position?: VideoPosition;
 }
 
-export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id }) => {
+const positionClasses: Record<VideoPosition, string> = {
+    tr: 'top-8 right-8',
+    br: 'bottom-8 right-8',
+    bl: 'bottom-8 left-8',
+    tl: 'top-8 left-8',
+    center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+};
+
+export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br' }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const { playingVideoId, setPlayingVideoId } = useVideoContext();
     const [isMuted, setIsMuted] = useState(false);
@@ -48,7 +59,7 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id }) => {
     };
 
     return (
-        <div className="absolute bottom-8 right-8 w-48 h-48 bg-slate-900 rounded-full overflow-hidden shadow-2xl border-4 border-white/20 z-40 group transition-all hover:scale-105">
+        <div className={`absolute ${positionClasses[position]} w-48 h-48 bg-slate-900 rounded-full overflow-hidden shadow-2xl border-4 border-white/20 z-40 group transition-all hover:scale-105 print:hidden`}>
             <video
                 ref={videoRef}
                 src={src}

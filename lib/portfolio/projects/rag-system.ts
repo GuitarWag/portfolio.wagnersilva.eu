@@ -7,8 +7,8 @@ export const ragSystem: ProjectData = {
     category: 'ai-ml',
     tags: ['React', 'TypeScript', 'Python', 'GKE', 'Neo4j', 'Qdrant', 'Vertex AI', 'FastAPI', 'tRPC'],
     context: [
-        'Organization needed cost-effective, secure AI access for 500+ employees.',
-        'Individual subscriptions were too expensive (€50K/yr) and insecure.',
+        'Organization needed cost-effective, secure AI access for employees.',
+        'Individual subscriptions were too expensive and insecure.',
         'Required access to internal company documents with role-based security.'
     ],
     challenge: [
@@ -22,8 +22,8 @@ export const ragSystem: ProjectData = {
         'Cloud IAP for seamless Google Workspace SSO'
     ],
     impact: [
-        '85% cost reduction (~€42.5K annual savings)',
-        '500+ active users, 10K+ daily queries',
+        'Significant cost reduction vs individual subscriptions',
+        'Highly customizable and extensible for internal needs',
         'Sub-2 second response times with high security'
     ],
     techs: ['Python', 'TypeScript', 'FastAPI', 'tRPC', 'Neo4j', 'PostgreSQL', 'Qdrant', 'Meilisearch', 'MinIO', 'Vertex AI', 'GKE'],

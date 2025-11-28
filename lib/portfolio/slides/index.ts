@@ -11,6 +11,7 @@ export {
     createGCPExpertiseSlide,
     createRealTimeExperienceSlide,
     createGrowthAreasSlide,
+    createSkillsSlide,
 } from './profile';
 
 // Closing and strength slides

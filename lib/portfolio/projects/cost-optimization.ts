@@ -8,60 +8,60 @@ export const costOptimization: ProjectData = {
     tags: ['Redis', 'BigQuery', 'Cloud Monitoring', 'Terraform'],
     context: [
         'GCP costs were rising 30% YoY, threatening sustainability.',
-        'Needed a strategy to reduce costs without impacting performance.',
+        'No visibility into per-app costs - resources lacked proper labeling.',
         'Goal: Create a cost-conscious engineering culture.'
     ],
     challenge: [
         'Reduce rising GCP costs without performance degradation',
-        'Optimize across multiple projects simultaneously',
+        'Track costs per application (Storage, VMs, Cloud Run, Cloud Run Jobs)',
         'Establish measurable, repeatable optimization processes'
     ],
     solution: [
-        'Redis (Memorystore) caching layer (60% query reduction)',
-        'BigQuery partitioning & clustering (70% less scanned)',
-        'Right-sizing compute resources & Spot VMs'
+        'Implemented resource labeling across all GCP services for cost allocation',
+        'Artifact Registry cleanup, storage class optimization, log ingestion reduction',
+        'CPU/RAM right-sizing & Committed Use Discounts (CUDs) where appropriate'
     ],
     impact: [
         '€15,000 annual savings (30% reduction)',
-        'Improved application performance via caching',
+        'Full cost visibility per application via billing labels',
         'Established automated cost monitoring & alerts'
     ],
     techs: ['Redis', 'BigQuery', 'Cloud Monitoring', 'Terraform'],
     detailSections: [
         {
-            title: 'Active Monitoring',
+            title: 'Resource Labeling',
             items: [
-                'Real-time cost tracking dashboards',
-                'Budget alerts and anomaly detection',
-                'Cost allocation by project/team',
-                'Weekly cost review meetings'
+                'Labels on Storage buckets, VMs, Cloud Run',
+                'Cloud Run Jobs, Cloud SQL tagged by app',
+                'Cost allocation reports per application',
+                'Billing exports to BigQuery for analysis'
+            ]
+        },
+        {
+            title: 'Resource Cleanup',
+            items: [
+                'Artifact Registry: Auto-delete old images',
+                'Buckets: Correct storage class per use case',
+                'Reduced unnecessary log ingestion',
+                'Eliminated orphaned resources'
             ]
         },
         {
             title: 'Right-Sizing',
             items: [
-                'Cloud SQL: Reduced instance tiers',
-                'GKE: Node pool right-sizing & autoscaling',
-                'Storage: Moved archival to Coldline',
-                'Eliminated over-provisioning'
+                'CPU/RAM optimization across services',
+                'Cloud SQL instance tier reduction',
+                'GKE node pool autoscaling',
+                'Dev environments: Spot VMs'
             ]
         },
         {
-            title: 'Service Optimization',
+            title: 'Strategic Purchases',
             items: [
-                'Cloud Run vs Functions selection',
-                'Batch jobs → Cloud Run Jobs',
-                'Dev environments: Spot VMs (60% off)',
-                'Committed Use Discounts applied'
-            ]
-        },
-        {
-            title: 'Code & Queries',
-            items: [
-                'BigQuery partitioning & clustering',
-                'Redis caching layer for APIs',
-                'Optimized data retention policies',
-                'Query optimization: 70% less scanned'
+                'Committed Use Discounts (CUDs)',
+                'Reserved capacity where predictable',
+                'Storage class lifecycle policies',
+                'BigQuery slot reservations'
             ]
         }
     ]

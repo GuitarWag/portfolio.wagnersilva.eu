@@ -2,8 +2,8 @@ import type { ProjectData } from '../types';
 
 export const pageBuilder: ProjectData = {
     id: 'page-builder',
-    title: 'White-Label Page Builder Platform',
-    subtitle: 'Global Self-Service Website Platform',
+    title: 'Page Builder Platform',
+    subtitle: 'Global Self-Service Website Platform for Solar Industry Leader',
     category: 'full-stack',
     tags: ['React', 'TypeScript', 'Node.js', 'Cloud Run', 'Cloud SQL', 'BigQuery'],
     context: [

@@ -3,14 +3,14 @@ export type IconName =
     | 'Code2' | 'Cloud' | 'Database' | 'Globe' | 'Shield' | 'Zap'
     | 'TrendingDown' | 'Users' | 'Server' | 'Lock' | 'MapPin' | 'Rocket'
     | 'FileCheck' | 'Calendar' | 'Mail' | 'CheckCircle2' | 'DollarSign'
-    | 'Sparkles' | 'Bot' | 'Puzzle';
+    | 'Sparkles' | 'Bot' | 'Puzzle' | 'GitMerge';
 
 export interface SlideData {
     id: string;
     title: string;
     content?: string[];
     image?: string;
-    layout: 'title-only' | 'bullets' | 'split-image' | 'full-image' | 'section-header' | 'grid-cards' | 'two-column' | 'three-column' | 'project-detail';
+    layout: 'title-only' | 'bullets' | 'split-image' | 'full-image' | 'section-header' | 'grid-cards' | 'two-column' | 'three-column' | 'project-detail' | 'skills-chips' | 'why-stockholm' | 'logistics';
     subtitle?: string;
     cards?: {
         icon?: IconName; // Icon name string for serialization
@@ -40,12 +40,16 @@ export interface SlideData {
         color?: 'blue' | 'green' | 'orange' | 'purple' | 'gray';
     }[];
     footer?: string | string[];
+    // Skills chips layout
+    hardSkills?: string[];
+    softSkills?: string[];
     // Location display for relocation-focused presentations
     showLocation?: boolean;
     currentLocation?: string;
     targetLocation?: string;
     // Video explanation for the slide
     videoUrl?: string;
+    videoPosition?: 'tr' | 'br' | 'bl' | 'tl' | 'center';
 }
 
 export interface PresentationData {

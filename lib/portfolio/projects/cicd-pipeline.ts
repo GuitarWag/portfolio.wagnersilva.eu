@@ -2,29 +2,29 @@ import type { ProjectData } from '../types';
 
 export const cicdPipeline: ProjectData = {
     id: 'cicd-pipeline',
-    title: 'CI/CD Pipeline Optimization',
-    subtitle: 'DevOps for 50+ Applications',
+    title: 'CI/CD Pipeline Migration',
+    subtitle: 'Jenkins to Cloud Build',
     category: 'devops',
-    tags: ['GitLab CI', 'Docker', 'Terraform', 'Cloud Build'],
+    tags: ['Cloud Build', 'Docker', 'Terraform', 'Jenkins', 'CI/CD', 'DevOps'],
     context: [
-        'Managing deployments for 50+ applications was manual and slow.',
-        'Needed a standardized, automated approach to improve delivery speed.',
-        'Required consistency across dev, staging, and production environments.'
+        'On-premises Jenkins was becoming a bottleneck and maintenance burden.',
+        '120+ different builds running in production alone.',
+        'Needed cloud-native solution with better scalability and reliability.'
     ],
     challenge: [
-        'Automate deployments for 50+ diverse applications',
-        'Reduce delivery time and manual errors',
-        'Ensure consistency and reliability across environments'
+        'Migrate 120+ production builds from on-prem Jenkins to Cloud Build',
+        'Maintain zero downtime during migration',
+        'Ensure consistency across dev, staging, and production environments'
     ],
     solution: [
-        'Standardized GitLab CI/CD pipelines',
+        'Phased migration from Jenkins to Cloud Build',
         'Docker containerization for all apps',
         'Infrastructure as Code (Terraform) for provisioning'
     ],
     impact: [
-        '30% reduction in delivery time',
-        'Eliminated manual deployment errors',
-        'Improved developer productivity and feedback loops'
+        'Successfully migrated 120+ builds to cloud-native CI/CD',
+        'Eliminated on-prem Jenkins maintenance overhead',
+        'Improved scalability and developer productivity'
     ],
-    techs: ['GitLab CI', 'Docker', 'Terraform', 'Cloud Build']
+    techs: ['Cloud Build', 'Docker', 'Terraform', 'Jenkins', 'CI/CD', 'DevOps']
 };

@@ -24,7 +24,7 @@ export const sftpArchitecture: ProjectData = {
     impact: [
         'ZERO data loss on financial records',
         '70% faster development for subsequent clients',
-        'Deployed successfully across 3 global regions'
+        'Reusable architecture deployed for multiple global clients'
     ],
     techs: ['Python', 'SFTP', 'Cloud Run Jobs', 'Dataflow', 'BigQuery', 'VPC Connector', 'Cloud NAT'],
     mermaid: `flowchart LR

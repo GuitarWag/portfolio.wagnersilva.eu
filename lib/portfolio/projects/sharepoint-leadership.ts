@@ -3,65 +3,66 @@ import type { ProjectData } from '../types';
 export const sharepointLeadership: ProjectData = {
     id: 'sharepoint-leadership',
     title: 'Technical Leadership',
-    subtitle: 'SharePoint & Power BI for Global Conservation Foundation',
+    subtitle: 'SharePoint Communication Site from Ground Zero',
     category: 'leadership',
-    tags: ['SharePoint', 'Power BI', 'Power Automate', 'Microsoft 365'],
+    tags: ['SharePoint', 'Power BI', 'Power Automate', 'Microsoft 365', 'UI/UX'],
     context: [
-        'Global conservation foundation needed data-driven decision making.',
-        'Complex stakeholder ecosystem (technical & non-technical).',
-        'Microsoft 365 integration requirements.'
+        'Global conservation foundation with 100K+ users worldwide needed a communication site.',
+        'No existing structure - built entirely from ground zero.',
+        'Required coordination across stakeholders, designers, and content teams.'
     ],
     challenge: [
-        'Complex stakeholder ecosystem (technical & non-technical)',
-        'Microsoft 365 integration requirements',
-        'Cross-functional team coordination needed'
+        'Build complete SharePoint communication site from scratch',
+        'Understand user behavior through stakeholder interviews',
+        'Coordinate content workflow with communications team and designer'
     ],
     solution: [
-        'SharePoint site architecture + Power Automate workflows',
-        'Power BI reporting infrastructure for executives',
-        'Bridged technical and creative teams effectively'
+        'Led stakeholder interviews to understand user needs and behavior',
+        'Defined content workflow with communications team for site map',
+        'Collaborated with designer on UI/UX, iterated with content team',
+        'Power BI reports and data automation for dynamic virtual hub sections'
     ],
     impact: [
-        'Data-driven conservation decisions enabled',
-        '80% reduction in manual reporting effort',
-        'Improved international collaboration'
+        'Complete communication site delivered from concept to launch',
+        'Data-driven sections powered by Power BI automation',
+        'Improved international collaboration and content management'
     ],
     techs: ['SharePoint', 'Power BI', 'Power Automate', 'Microsoft 365'],
     detailSections: [
         {
+            title: 'Discovery & Planning',
+            items: [
+                'Stakeholder interviews to understand user behavior',
+                'Defined site map and information architecture',
+                'Content workflow with communications team',
+                'Iterative design process with UI/UX designer'
+            ]
+        },
+        {
             title: 'Technical Delivery',
             items: [
-                'SharePoint hub with document libraries',
-                'Power Automate data collection workflows',
-                'Power BI executive dashboards',
-                'Data integration from multiple sources'
+                'SharePoint communication site architecture',
+                'Power BI reports for dynamic sections',
+                'Data automation driving virtual hub content',
+                'Power Automate workflows for content updates'
             ]
         },
         {
-            title: 'Stakeholder Management',
+            title: 'Stakeholder Coordination',
             items: [
                 'Foundation executive team',
-                'Field staff across continents',
-                'External designers and copywriters',
+                'Communications and content team',
+                'In-house UI/UX designer from my team',
                 'IT team coordination'
-            ]
-        },
-        {
-            title: 'Report Types Delivered',
-            items: [
-                'Executive Dashboard (global metrics)',
-                'Regional Reports (Americas, EMEA, APAC)',
-                'Financial Reports (donor tracking)',
-                'Impact visualization dashboards'
             ]
         },
         {
             title: 'Leadership Skills Applied',
             items: [
-                'Iterative feedback loops',
-                'Clear documentation at all levels',
-                'Consensus building across teams',
-                'Flexible to changing requirements'
+                'End-to-end project ownership',
+                'Cross-functional team facilitation',
+                'Iterative feedback loops with all teams',
+                'Translating requirements to technical solutions'
             ]
         }
     ]

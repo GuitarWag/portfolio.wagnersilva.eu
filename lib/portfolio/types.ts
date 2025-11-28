@@ -88,10 +88,14 @@ export interface PresentationConfig {
 }
 
 // Helper to convert ProjectData to SlideData
-export function projectToSlide(project: ProjectData): SlideData {
+export function projectToSlide(project: ProjectData, index?: number): SlideData {
+    const title = index !== undefined
+        ? `PROJECT #${index} - ${project.title}`.toUpperCase()
+        : project.title;
+
     return {
         id: `project-${project.id}`,
-        title: project.title,
+        title,
         subtitle: project.subtitle,
         layout: 'project-detail',
         context: project.context,

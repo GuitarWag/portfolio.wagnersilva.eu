@@ -19,7 +19,8 @@ export const dbAnonymization: ProjectData = {
     solution: [
         'On-demand snapshot and anonymization tool (manual trigger)',
         'Python-based PII masking maintaining referential integrity',
-        'Creates completely new database instances for dev/staging'
+        'Creates new VM, validates, pauses old VM, transfers static IP to new VM',
+        'Old VM kept available until pending schema changes are complete'
     ],
     impact: [
         'High-quality testing with realistic, fresh data',

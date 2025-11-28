@@ -19,26 +19,28 @@ export const triDirectionalSync: ProjectData = {
     solution: [
         'TypeScript orchestration engine on Cloud Run Jobs',
         'Conflict detection logic with priority rules',
-        'Event-driven architecture with comprehensive logging'
+        'Firestore collection tracking update history with before/after state snapshots'
     ],
     impact: [
         'Single source of truth across all platforms',
         '20+ hours/week saved from manual data entry',
         '99.9% sync success rate with auto-recovery'
     ],
-    techs: ['TypeScript', 'Cloud Run Jobs', 'Salesforce API', 'TalentLMS API', 'REST'],
+    techs: ['TypeScript', 'Cloud Run Jobs', 'Salesforce API', 'TalentLMS API', 'Firestore', 'REST'],
     mermaid: `flowchart LR
     A[Salesforce<br/>Pardot] <-->|Bi-Sync| B[Cloud Run Jobs<br/>Orchestrator]
     B <-->|Bi-Sync| C[(Internal DB<br/>Cloud SQL)]
     B <-->|Bi-Sync| D[TalentLMS]
+    B -->|History| E[(Firestore<br/>Audit Log)]
 
     N1>Conflict Detection<br/>& Resolution] -.-> B
-    N2>Priority Rules<br/>& State Management] -.-> B
+    N2>Before/After<br/>State Snapshots] -.-> E
 
     style A fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
     style B fill:#dcfce7,stroke:#22c55e,stroke-width:2px
     style C fill:#e0e7ff,stroke:#6366f1,stroke-width:2px
     style D fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style E fill:#fee2e2,stroke:#ef4444,stroke-width:2px
     style N1 fill:#fef9c3,stroke:#ca8a04,stroke-width:1px
     style N2 fill:#fef9c3,stroke:#ca8a04,stroke-width:1px`
 };
