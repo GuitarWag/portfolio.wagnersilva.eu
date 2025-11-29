@@ -1,8 +1,8 @@
 # PROJECT\_1
 
-[00:00:00] The page builder platform. Okay. This was , a request from a solar panel company that operates worldwide, operates a lot in the United States, a lot in the EMEA region, and a lot in APAC. So they had this need of offering to their installers. The installers are third part companies that sometimes they can be very small, just one person operation.
+[00:00:00] The page builder platform. Okay. This was a request from a solar panel company that operates worldwide, operates a lot in the United States, a lot in the EMEA region, and a lot in APAC. So they had this need of offering to their installers. The installers are third part companies that sometimes they can be very small, just one person operation.
 
-Some installer companies are a little bit bigger, but the installers buy solar panels from this big solar company. So they wanted to give to these installers a marketing tool, a powerful marketing tool so they can have a website, because a lot of them didn't have a website. Can you imagine? So they wanted these installers to have, a powerful, modern looking, very nice, responsible [00:01:00] everything.
+Some installer companies are a little bit bigger, but the installers buy solar panels from this big solar company. So they wanted to give to these installers a marketing tool, a powerful marketing tool so they can have a website, because a lot of them didn't have a website. Can you imagine? So they wanted these installers to have, a powerful, modern looking, very nice, responsive [00:01:00] everything.
 
 And then we built the platform. Yeah, we managed to talk with some of the installers and talked with some high hierarchy people in the solar. Company and then we built the whole ecosystem. The ecosystem itself, it's not so complex. I built two web applications. One is the editor that they can actually sso into this web application from another app that we also implemented.
 

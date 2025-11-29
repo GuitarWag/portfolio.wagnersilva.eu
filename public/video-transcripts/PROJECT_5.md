@@ -1,6 +1,6 @@
 # PROJECT\_5
 
-[00:00:00] Okay. Pro level security system. Okay, let me paint the picture here. So this big customer in Germany that we have, they have a client of course, and this client is a big company that makes coffee machines in the whole Europe like they are. I think they, perhaps they're the biggest one. I don't know, but yeah, I think they are the biggest one.
+[00:00:00] Okay. Row level security system. Okay, let me paint the picture here. So this big customer in Germany that we have, they have a client of course, and this client is a big company that makes coffee machines in the whole Europe like they are. I think they, perhaps they're the biggest one. I don't know, but yeah, I think they are the biggest one.
 
 So they had this manufacturer system that they log in the coffee brand. They log it in and they see reports. They have many reports on Looker Studio that they are all embedded. With iframe into this application and they were using like Google login for this reports don't be like explicit on the internet.
 

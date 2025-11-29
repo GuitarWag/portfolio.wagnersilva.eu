@@ -130,7 +130,7 @@ if (stockholmFullPortfolio.slides.length > 0) {
 const firstProjectSlide = stockholmFullPortfolio.slides.find(s => s.id.startsWith('project-'));
 if (firstProjectSlide) {
     firstProjectSlide.videoUrl = `${videoBasePath}/PROJECT_1.mp4`;
-    firstProjectSlide.videoPosition = 'br';
+    firstProjectSlide.videoPosition = 'tr';
     firstProjectSlide.videoSubtitles = '/video-transcripts/PROJECT_1.vtt';
     firstProjectSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_1.md';
 }
@@ -157,7 +157,7 @@ if (triSyncSlide) {
 const costOptSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cost-optimization');
 if (costOptSlide) {
     costOptSlide.videoUrl = `${videoBasePath}/PROJECT_4.mp4`;
-    costOptSlide.videoPosition = 'br';
+    costOptSlide.videoPosition = 'tr';
     costOptSlide.videoSubtitles = '/video-transcripts/PROJECT_4.vtt';
     costOptSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_4.md';
 }
@@ -166,7 +166,7 @@ if (costOptSlide) {
 const rlsSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-rls-security');
 if (rlsSlide) {
     rlsSlide.videoUrl = `${videoBasePath}/PROJECT_5.mp4`;
-    rlsSlide.videoPosition = 'br';
+    rlsSlide.videoPosition = 'tr';
     rlsSlide.videoSubtitles = '/video-transcripts/PROJECT_5.vtt';
     rlsSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_5.md';
 }
@@ -175,9 +175,10 @@ if (rlsSlide) {
 const sftpSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-sftp-architecture');
 if (sftpSlide) {
     sftpSlide.videoUrl = `${videoBasePath}/PROJECT_6.mp4`;
-    sftpSlide.videoPosition = 'br';
+    sftpSlide.videoPosition = 'tr';
     sftpSlide.videoSubtitles = '/video-transcripts/PROJECT_6.vtt';
     sftpSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_6.md';
+    sftpSlide.videoPosterTime = 10;
 }
 
 // Project 7: API Integration
@@ -207,7 +208,32 @@ if (apisixSlide) {
     apisixSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_9.md';
 }
 
-// Projects 10-12 don't have videos yet - leaving without video configuration
+// Project 10: CDC Pipeline
+const cdcSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cdc-pipeline');
+if (cdcSlide) {
+    cdcSlide.videoUrl = `${videoBasePath}/PROJECT_10.mp4`;
+    cdcSlide.videoPosition = 'br';
+    cdcSlide.videoSubtitles = '/video-transcripts/PROJECT_10.vtt';
+    cdcSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_10.md';
+}
+
+// Project 11: Database Anonymization
+const dbAnonSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-db-anonymization');
+if (dbAnonSlide) {
+    dbAnonSlide.videoUrl = `${videoBasePath}/PROJECT_11.mp4`;
+    dbAnonSlide.videoPosition = 'br';
+    dbAnonSlide.videoSubtitles = '/video-transcripts/PROJECT_11.vtt';
+    dbAnonSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_11.md';
+}
+
+// Project 12: SharePoint Leadership
+const sharepointSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-sharepoint-leadership');
+if (sharepointSlide) {
+    sharepointSlide.videoUrl = `${videoBasePath}/PROJECT_12.mp4`;
+    sharepointSlide.videoPosition = 'tr';
+    sharepointSlide.videoSubtitles = '/video-transcripts/PROJECT_12.vtt';
+    sharepointSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_12.md';
+}
 
 // Find closing (Thank You) slide and add final video
 const lastVideo = `${videoBasePath}/LAST_VIDEO.mp4`;
