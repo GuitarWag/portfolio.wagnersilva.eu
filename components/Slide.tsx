@@ -73,7 +73,56 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                         {slide.footer && (
                             <div className="mt-12 text-xl text-gray-500">
                                 {Array.isArray(slide.footer)
-                                    ? slide.footer.map((line, i) => <div key={i}>{line}</div>)
+                                    ? slide.footer.map((line, i) => {
+                                        // Check if line contains links
+                                        if (line.includes('|')) {
+                                            const parts = line.split('|').map(p => p.trim());
+                                            return (
+                                                <div key={i} className="flex items-center justify-center gap-2">
+                                                    {parts.map((part, idx) => {
+                                                        // Check if it's a URL
+                                                        if (part.includes('.')) {
+                                                            const isLinkedIn = part.includes('linkedin');
+                                                            const url = part.startsWith('http') ? part : (isLinkedIn ? `https://${part}` : `https://${part}`);
+                                                            return (
+                                                                <React.Fragment key={idx}>
+                                                                    {idx > 0 && <span className="text-gray-400">|</span>}
+                                                                    <a
+                                                                        href={url}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                                                    >
+                                                                        {part}
+                                                                    </a>
+                                                                </React.Fragment>
+                                                            );
+                                                        }
+                                                        return (
+                                                            <React.Fragment key={idx}>
+                                                                {idx > 0 && <span className="text-gray-400">|</span>}
+                                                                <span>{part}</span>
+                                                            </React.Fragment>
+                                                        );
+                                                    })}
+                                                </div>
+                                            );
+                                        }
+                                        // Check if it's an email
+                                        if (line.includes('@')) {
+                                            return (
+                                                <div key={i}>
+                                                    <a
+                                                        href={`mailto:${line}`}
+                                                        className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                                    >
+                                                        {line}
+                                                    </a>
+                                                </div>
+                                            );
+                                        }
+                                        return <div key={i}>{line}</div>;
+                                    })
                                     : slide.footer}
                             </div>
                         )}
@@ -205,15 +254,15 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
 
                             <div className="flex flex-row gap-3">
                                 {slide.context && (
-                                    <div className="w-full bg-gray-50 p-2 rounded-lg border-l-4 border-gray-600 mb-1">
-                                        <h4 className="font-bold text-gray-800 mb-1 uppercase text-xs tracking-wider flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                                    <div className="w-full bg-gradient-to-r from-slate-50 to-gray-50 p-3 rounded-lg border-l-4 border-gray-500 mb-2 shadow-sm">
+                                        <h4 className="font-bold text-gray-800 mb-2 uppercase text-sm tracking-wider flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
                                             Context & Overview
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-xs leading-snug">
+                                        <ul className="space-y-1 text-gray-800 text-sm leading-relaxed">
                                             {slide.context.map((item, i) => (
                                                 <li key={i} className="flex items-start">
-                                                    <span className="text-gray-600 mr-1.5 mt-0.5 flex-shrink-0 text-xs">•</span>
+                                                    <span className="text-gray-500 mr-2 mt-0.5 flex-shrink-0">•</span>
                                                     <span>{item}</span>
                                                 </li>
                                             ))}
@@ -224,15 +273,15 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
 
                             <div className="flex flex-row gap-3">
                                 {slide.challenge && (
-                                    <div className="flex-1 bg-red-50 p-2 rounded-lg border-l-4 border-red-600">
-                                        <h4 className="font-bold text-red-800 mb-1 uppercase text-xs tracking-wider flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
+                                    <div className="flex-1 bg-gradient-to-br from-red-50 to-orange-50 p-3 rounded-lg border-l-4 border-red-500 shadow-md hover:shadow-lg transition-shadow">
+                                        <h4 className="font-bold text-red-800 mb-2 uppercase text-sm tracking-wider flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                                             Challenge
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-xs leading-snug">
+                                        <ul className="space-y-1.5 text-gray-800 text-sm leading-relaxed">
                                             {slide.challenge.map((item, i) => (
                                                 <li key={i} className="flex items-start">
-                                                    <span className="text-red-600 mr-1.5 mt-0.5 flex-shrink-0 text-xs">•</span>
+                                                    <span className="text-red-600 mr-2 mt-0.5 flex-shrink-0 font-bold">•</span>
                                                     <span>{item}</span>
                                                 </li>
                                             ))}
@@ -241,15 +290,15 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 )}
 
                                 {slide.solution && (
-                                    <div className="flex-1 bg-blue-50 p-2 rounded-lg border-l-4 border-blue-600">
-                                        <h4 className="font-bold text-blue-800 mb-1 uppercase text-xs tracking-wider flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                                    <div className="flex-1 bg-gradient-to-br from-blue-50 to-cyan-50 p-3 rounded-lg border-l-4 border-blue-500 shadow-md hover:shadow-lg transition-shadow">
+                                        <h4 className="font-bold text-blue-800 mb-2 uppercase text-sm tracking-wider flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                                             Solution
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-xs leading-snug">
+                                        <ul className="space-y-1.5 text-gray-800 text-sm leading-relaxed">
                                             {slide.solution.map((item, i) => (
                                                 <li key={i} className="flex items-start">
-                                                    <span className="text-blue-600 mr-1.5 mt-0.5 flex-shrink-0 text-xs">•</span>
+                                                    <span className="text-blue-600 mr-2 mt-0.5 flex-shrink-0 font-bold">•</span>
                                                     <span>{item}</span>
                                                 </li>
                                             ))}
@@ -258,15 +307,15 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 )}
 
                                 {slide.impact && (
-                                    <div className="flex-1 bg-green-50 p-2 rounded-lg border-l-4 border-green-600">
-                                        <h4 className="font-bold text-green-800 mb-1 uppercase text-xs tracking-wider flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
-                                            Impact
+                                    <div className="flex-1 bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-lg border-l-4 border-green-500 shadow-md hover:shadow-lg transition-shadow ring-2 ring-green-200">
+                                        <h4 className="font-bold text-green-800 mb-2 uppercase text-sm tracking-wider flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                                            Impact ⭐
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-xs leading-snug">
+                                        <ul className="space-y-1.5 text-gray-800 text-sm leading-relaxed font-medium">
                                             {slide.impact.map((item, i) => (
                                                 <li key={i} className="flex items-start">
-                                                    <span className="text-green-600 mr-1.5 mt-0.5 flex-shrink-0 text-xs">•</span>
+                                                    <span className="text-green-600 mr-2 mt-0.5 flex-shrink-0 font-bold">✓</span>
                                                     <span>{item}</span>
                                                 </li>
                                             ))}
@@ -276,9 +325,9 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                             </div>
 
                             {slide.techs && (
-                                <div className="flex flex-wrap gap-1 pt-1">
+                                <div className="flex flex-wrap gap-1.5 pt-2">
                                     {slide.techs.map((tech, i) => (
-                                        <span key={i} className="px-2 py-0.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded text-xs font-semibold border border-blue-200">
+                                        <span key={i} className="px-2.5 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-md text-sm font-bold border border-blue-300 hover:scale-105 transition-transform shadow-sm">
                                             {tech}
                                         </span>
                                     ))}
@@ -487,7 +536,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
     };
 
     return (
-        <div className={baseClasses} data-slide={slideNumber}>
+        <div id={slide.id} className={baseClasses} data-slide={slideNumber}>
             {/* Print-only portfolio link */}
             <a
                 href="https://portfolio.wagnersilva.eu"

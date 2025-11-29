@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { buildSystemPrompt } from '@/lib/ai/system-prompt';
 import type { TLDRRequest, TLDRResponse } from '@/lib/ai/types';
+import { rateLimiter, RateLimitPresets, getClientIdentifier } from '@/lib/rate-limit';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY! });
 
@@ -55,6 +56,34 @@ async function generateWithRetry(userPrompt: string, systemPrompt: string, retri
 
 export async function POST(request: NextRequest): Promise<NextResponse<TLDRResponse>> {
     try {
+        // Rate limiting check
+        const clientId = getClientIdentifier(request);
+        const { limit, windowMs } = RateLimitPresets.RELAXED; // 30 requests per minute (users may browse multiple projects)
+        const rateLimitResult = rateLimiter.check(clientId, limit, windowMs);
+
+        // Add rate limit headers
+        const headers = {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': new Date(rateLimitResult.resetAt).toISOString(),
+        };
+
+        if (!rateLimitResult.allowed) {
+            return NextResponse.json(
+                {
+                    summary: '',
+                    error: 'Too many requests. Please wait a moment before generating another summary.',
+                },
+                {
+                    status: 429,
+                    headers: {
+                        ...headers,
+                        'Retry-After': rateLimitResult.retryAfter?.toString() || '60',
+                    },
+                }
+            );
+        }
+
         const body: TLDRRequest = await request.json();
 
         const userPrompt = buildUserPrompt(body);
@@ -62,7 +91,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<TLDRRespo
 
         const summary = await generateWithRetry(userPrompt, systemPrompt);
 
-        return NextResponse.json({ summary });
+        return NextResponse.json({ summary }, { headers });
     } catch (error) {
         console.error('TL;DR generation error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Failed to generate TL;DR';

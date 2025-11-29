@@ -6,6 +6,7 @@ import type { PresentationData } from '@/lib/types';
 import { Slide } from './Slide';
 import { VideoProvider, useVideoContext } from './VideoContext';
 import { SubtitleDisplay } from './SubtitleDisplay';
+import { AIAgent } from './AIAgent';
 
 interface PresentationProps {
     data: PresentationData;
@@ -43,6 +44,7 @@ export const Presentation: React.FC<PresentationProps> = ({ data }) => {
             <div className="min-h-screen bg-gray-100">
                 <PresentationControls />
                 <SubtitleDisplay />
+                <AIAgent presentationId={data.id} />
 
                 <div className="print:w-full print:h-full">
                     {data.slides.map((slide, index) => (
