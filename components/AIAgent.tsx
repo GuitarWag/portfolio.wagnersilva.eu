@@ -126,7 +126,7 @@ export function AIAgent({ presentationId }: AIAgentProps) {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className="no-print fixed top-4 left-4 z-50 bg-gradient-to-br from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
+                className="no-print fixed bottom-6 right-6 z-[60] bg-gradient-to-br from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
                 aria-label="Open AI Assistant"
             >
                 <Bot className="w-6 h-6" />
@@ -142,7 +142,7 @@ export function AIAgent({ presentationId }: AIAgentProps) {
         return (
             <button
                 onClick={() => setIsMinimized(false)}
-                className="no-print fixed top-4 left-4 z-50 bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                className="no-print fixed bottom-6 right-6 z-[60] bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
             >
                 <Bot className="w-5 h-5" />
                 <span className="text-sm font-medium">AI Assistant</span>
@@ -154,7 +154,7 @@ export function AIAgent({ presentationId }: AIAgentProps) {
     }
 
     return (
-        <div className="no-print fixed top-4 left-4 z-50 w-96 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="no-print fixed bottom-6 right-6 z-[60] w-96 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 text-white p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
