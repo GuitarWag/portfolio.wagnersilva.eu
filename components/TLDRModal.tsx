@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import { X, Sparkles } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { X, Sparkles, Lightbulb, FileText, Video, Cpu, ArrowRight } from 'lucide-react';
 
 interface TLDRModalProps {
     isOpen: boolean;
@@ -21,6 +21,7 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
     projectTitle
 }) => {
     const modalRef = useRef<HTMLDivElement>(null);
+    const [activeTab, setActiveTab] = useState<'summary' | 'how-it-works'>('summary');
 
     // Close on escape key
     useEffect(() => {
@@ -36,6 +37,13 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
             document.body.style.overflow = 'unset';
         };
     }, [isOpen, onClose]);
+
+    // Reset tab when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setActiveTab('summary');
+        }
+    }, [isOpen]);
 
     // Close on outside click
     const handleBackdropClick = (e: React.MouseEvent) => {
@@ -74,57 +82,198 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                     </button>
                 </div>
 
+                {/* Tabs */}
+                <div className="flex border-b border-gray-200 bg-gray-50">
+                    <button
+                        onClick={() => setActiveTab('summary')}
+                        className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
+                            activeTab === 'summary'
+                                ? 'text-purple-600'
+                                : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                    >
+                        <span className="flex items-center justify-center gap-2">
+                            <Sparkles className="w-4 h-4" />
+                            Summary
+                        </span>
+                        {activeTab === 'summary' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('how-it-works')}
+                        className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
+                            activeTab === 'how-it-works'
+                                ? 'text-purple-600'
+                                : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                    >
+                        <span className="flex items-center justify-center gap-2">
+                            <Lightbulb className="w-4 h-4" />
+                            How does this work?
+                        </span>
+                        {activeTab === 'how-it-works' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+                        )}
+                    </button>
+                </div>
+
                 {/* Content - Scrollable */}
-                <div className="px-6 py-5 overflow-y-auto max-h-[calc(80vh-140px)] scrollbar-thin">
-                    {isLoading && (
-                        <div className="flex flex-col items-center justify-center py-12">
-                            <div className="relative">
-                                <div className="w-12 h-12 border-4 border-purple-200 rounded-full animate-spin border-t-purple-600" />
-                                <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-purple-600" />
-                            </div>
-                            <p className="mt-4 text-gray-600 font-medium">Generating summary...</p>
-                            <p className="text-sm text-gray-400">Powered by Gemini 2.5 Flash</p>
-                        </div>
+                <div className="px-6 py-5 overflow-y-auto max-h-[calc(80vh-200px)] scrollbar-thin">
+                    {activeTab === 'summary' && (
+                        <>
+                            {isLoading && (
+                                <div className="flex flex-col items-center justify-center py-12">
+                                    <div className="relative">
+                                        <div className="w-12 h-12 border-4 border-purple-200 rounded-full animate-spin border-t-purple-600" />
+                                        <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-purple-600" />
+                                    </div>
+                                    <p className="mt-4 text-gray-600 font-medium">Generating summary...</p>
+                                    <p className="text-sm text-gray-400">Powered by Gemini 2.0 Flash</p>
+                                </div>
+                            )}
+
+                            {error && !isLoading && (
+                                <div className="flex flex-col items-center justify-center py-12">
+                                    <div className="p-3 bg-red-100 rounded-full mb-4">
+                                        <X className="w-6 h-6 text-red-600" />
+                                    </div>
+                                    <p className="text-red-600 font-medium">{error}</p>
+                                    <button
+                                        onClick={onClose}
+                                        className="mt-4 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            )}
+
+                            {summary && !isLoading && !error && (
+                                <div className="prose prose-sm max-w-none">
+                                    {summary.split('\n').map((line, index) => {
+                                        // Handle bold headers like **The Challenge**
+                                        if (line.match(/^\*\*[^*]+\*\*$/)) {
+                                            const title = line.replace(/\*\*/g, '');
+                                            return (
+                                                <h4 key={index} className="text-base font-semibold text-gray-900 mt-5 mb-2 first:mt-0 border-b border-gray-200 pb-1">
+                                                    {title}
+                                                </h4>
+                                            );
+                                        }
+                                        // Handle empty lines
+                                        if (line.trim() === '') {
+                                            return <div key={index} className="h-2" />;
+                                        }
+                                        // Regular paragraph
+                                        return (
+                                            <p key={index} className="text-gray-700 leading-relaxed mb-2">
+                                                {line}
+                                            </p>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </>
                     )}
 
-                    {error && !isLoading && (
-                        <div className="flex flex-col items-center justify-center py-12">
-                            <div className="p-3 bg-red-100 rounded-full mb-4">
-                                <X className="w-6 h-6 text-red-600" />
+                    {activeTab === 'how-it-works' && (
+                        <div className="space-y-6">
+                            {/* Built by me badge */}
+                            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg">
+                                <span className="text-2xl">🛠️</span>
+                                <p className="text-sm font-medium text-gray-700">
+                                    I built this feature to showcase how I approach AI integration in real products.
+                                </p>
                             </div>
-                            <p className="text-red-600 font-medium">{error}</p>
-                            <button
-                                onClick={onClose}
-                                className="mt-4 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    )}
 
-                    {summary && !isLoading && !error && (
-                        <div className="prose prose-sm max-w-none">
-                            {summary.split('\n').map((line, index) => {
-                                // Handle bold headers like **The Challenge**
-                                if (line.match(/^\*\*[^*]+\*\*$/)) {
-                                    const title = line.replace(/\*\*/g, '');
-                                    return (
-                                        <h4 key={index} className="text-base font-semibold text-gray-900 mt-5 mb-2 first:mt-0 border-b border-gray-200 pb-1">
-                                            {title}
-                                        </h4>
-                                    );
-                                }
-                                // Handle empty lines
-                                if (line.trim() === '') {
-                                    return <div key={index} className="h-2" />;
-                                }
-                                // Regular paragraph
-                                return (
-                                    <p key={index} className="text-gray-700 leading-relaxed mb-2">
-                                        {line}
-                                    </p>
-                                );
-                            })}
+                            {/* How it works explanation */}
+                            <div>
+                                <h4 className="text-base font-semibold text-gray-900 mb-4">The Architecture</h4>
+
+                                {/* Flow diagram */}
+                                <div className="flex flex-col gap-3">
+                                    {/* Step 1 */}
+                                    <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+                                        <div className="p-2 bg-blue-100 rounded-lg shrink-0">
+                                            <FileText className="w-5 h-5 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-900">1. Project Data</p>
+                                            <p className="text-sm text-gray-600">
+                                                Each project has structured data: context, challenges, solutions, impact metrics, and tech stack. This is the foundation.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                        <ArrowRight className="w-5 h-5 text-gray-400 rotate-90" />
+                                    </div>
+
+                                    {/* Step 2 */}
+                                    <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                                        <div className="p-2 bg-green-100 rounded-lg shrink-0">
+                                            <Video className="w-5 h-5 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-900">2. Video Transcription</p>
+                                            <p className="text-sm text-gray-600">
+                                                I recorded video explanations for each project. The transcripts add personal context and nuances that structured data can&apos;t capture.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                        <ArrowRight className="w-5 h-5 text-gray-400 rotate-90" />
+                                    </div>
+
+                                    {/* Step 3 */}
+                                    <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
+                                        <div className="p-2 bg-purple-100 rounded-lg shrink-0">
+                                            <Cpu className="w-5 h-5 text-purple-600" />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-900">3. AI Processing</p>
+                                            <p className="text-sm text-gray-600">
+                                                Gemini 2.0 Flash receives both data sources with a crafted prompt. It synthesizes a concise summary that captures the essence of each project.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                        <ArrowRight className="w-5 h-5 text-gray-400 rotate-90" />
+                                    </div>
+
+                                    {/* Step 4 */}
+                                    <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
+                                        <div className="p-2 bg-amber-100 rounded-lg shrink-0">
+                                            <Sparkles className="w-5 h-5 text-amber-600" />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-900">4. Real-time Generation</p>
+                                            <p className="text-sm text-gray-600">
+                                                Summaries are generated on-demand via a Next.js API route. No pre-generated content — it&apos;s fresh every time you click.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Why this matters */}
+                            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <h5 className="font-medium text-gray-900 mb-2">Why I built this</h5>
+                                <p className="text-sm text-gray-600">
+                                    This feature demonstrates my approach to AI integration: combining structured data with unstructured content (video transcripts) to create genuinely useful outputs. It&apos;s not just a gimmick — it solves a real UX problem of helping busy reviewers quickly understand complex projects.
+                                </p>
+                            </div>
+
+                            {/* Tech stack */}
+                            <div className="flex flex-wrap gap-2">
+                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Next.js API Routes</span>
+                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Gemini 2.0 Flash</span>
+                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">TypeScript</span>
+                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Prompt Engineering</span>
+                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Video Transcription</span>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -134,7 +283,7 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                     <div className="px-6 py-3 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
                         <span className="text-xs text-gray-400 flex items-center gap-1">
                             <Sparkles className="w-3 h-3" />
-                            Generated by AI based on project data
+                            {activeTab === 'summary' ? 'Generated by AI based on project data' : 'Built by Wagner Silva'}
                         </span>
                         <button
                             onClick={onClose}
