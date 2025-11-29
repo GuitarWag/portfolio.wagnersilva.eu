@@ -1,0 +1,56 @@
+{
+    # Global options
+    admin off
+}
+
+portfolio.wagnersilva.eu {
+    # Automatic HTTPS with Let's Encrypt
+    # Caddy handles certificate provisioning and renewal automatically
+
+    # Enable compression
+    encode gzip zstd
+
+    # Security headers
+    header {
+        # Prevent XSS attacks
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+
+        # HSTS (HTTP Strict Transport Security)
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+        # Content Security Policy - Allow Google AI API, Google Analytics, and common resources
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://generativelanguage.googleapis.com https://storage.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com https://*.google-analytics.com; media-src 'self' https://storage.googleapis.com blob:; frame-src 'self'"
+
+        # Referrer Policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+
+        # Permissions Policy
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    }
+
+    # Reverse proxy to Next.js application running on port 3000
+    reverse_proxy localhost:3000 {
+        # Health checks
+        health_uri /
+        health_interval 30s
+        health_timeout 5s
+
+        # Headers
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Handle errors gracefully
+    handle_errors {
+        respond "{err.status_code} {err.status_text}"
+    }
+}
+
+# Redirect www to non-www
+www.portfolio.wagnersilva.eu {
+    redir https://portfolio.wagnersilva.eu{uri} permanent
+}

@@ -495,6 +495,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                     id={slide.id}
                     position={slide.videoPosition}
                     subtitles={slide.videoSubtitles}
+                    projectTitle={slide.title}
                     onEnded={slideNumber === 1 ? () => {
                         const nextSlide = document.querySelector(`[data-slide="${slideNumber + 1}"]`);
                         nextSlide?.scrollIntoView({ behavior: 'smooth' });

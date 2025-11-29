@@ -1,0 +1,32 @@
+[Unit]
+Description=Portfolio Wagner Silva EU - Next.js Application
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/var/www/portfolio-wagnersilva-eu
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=10
+
+# Environment variables
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=0.0.0.0
+
+# Load environment file for secrets (API keys)
+EnvironmentFile=-/var/www/portfolio-wagnersilva-eu/.env
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=portfolio-wagnersilva-eu
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

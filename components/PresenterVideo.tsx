@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
 import { useVideoContext } from './VideoContext';
+import { trackVideoPlay, trackVideoPause } from '@/lib/analytics';
 
 type VideoPosition = 'tr' | 'br' | 'bl' | 'tl' | 'center';
 
@@ -18,6 +19,7 @@ interface PresenterVideoProps {
     position?: VideoPosition;
     subtitles?: string;
     onEnded?: () => void;
+    projectTitle?: string;
 }
 
 const positionClasses: Record<VideoPosition, string> = {
@@ -80,7 +82,7 @@ function parseVTT(content: string): Cue[] {
     return cues;
 }
 
-export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded }) => {
+export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded, projectTitle }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const { playingVideoId, setPlayingVideoId, setCurrentSubtitle, subtitlesEnabled } = useVideoContext();
     const [isMuted, setIsMuted] = useState(false);
@@ -187,10 +189,12 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
                 setPlayingVideoId(id);
                 videoRef.current.play();
                 setIsPlaying(true);
+                trackVideoPlay(id, projectTitle);
             } else {
                 videoRef.current.pause();
                 setIsPlaying(false);
                 setPlayingVideoId(null);
+                trackVideoPause(id, projectTitle);
             }
         }
     };

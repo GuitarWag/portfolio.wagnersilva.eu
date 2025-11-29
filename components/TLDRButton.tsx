@@ -5,6 +5,7 @@ import { Sparkles, X } from 'lucide-react';
 import { TLDRModal } from './TLDRModal';
 import type { TLDRRequest, TLDRResponse } from '@/lib/ai/types';
 import type { SlideData } from '@/lib/types';
+import { trackTLDRClick, trackTLDRSuccess, trackTLDRError } from '@/lib/analytics';
 
 interface TLDRButtonProps {
     slide: SlideData;
@@ -59,6 +60,9 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
         setError(undefined);
         setSummary('');
 
+        // Track TL;DR button click
+        trackTLDRClick(slide.title);
+
         try {
             // Fetch transcript from URL if provided
             let transcriptContent = slide.videoTranscript || '';
@@ -94,11 +98,15 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
 
             if (data.error) {
                 setError(data.error);
+                trackTLDRError(slide.title, data.error);
             } else {
                 setSummary(data.summary);
+                trackTLDRSuccess(slide.title);
             }
         } catch (err) {
-            setError('Failed to connect to AI service. Please try again.');
+            const errorMsg = 'Failed to connect to AI service. Please try again.';
+            setError(errorMsg);
+            trackTLDRError(slide.title, errorMsg);
         } finally {
             setIsLoading(false);
         }
