@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, X } from 'lucide-react';
 import { TLDRModal } from './TLDRModal';
-import type { TLDRRequest, TLDRResponse } from '@/lib/ai/types';
+import type { TLDRRequest, TLDRResponse, AudienceLevel } from '@/lib/ai/types';
 import type { SlideData } from '@/lib/types';
 import { trackTLDRClick, trackTLDRSuccess, trackTLDRError } from '@/lib/analytics';
 
@@ -53,15 +53,22 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
         setTooltipDismissed(true);
     };
 
-    const handleClick = async () => {
+    const handleClick = () => {
         dismissTooltip();
         setIsModalOpen(true);
-        setIsLoading(true);
+        // Reset state when opening
         setError(undefined);
         setSummary('');
+        setIsLoading(false);
 
         // Track TL;DR button click
         trackTLDRClick(slide.title);
+    };
+
+    const handleAudienceSelect = async (level: AudienceLevel) => {
+        setIsLoading(true);
+        setError(undefined);
+        setSummary('');
 
         try {
             // Fetch transcript from URL if provided
@@ -86,6 +93,7 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
                 impact: slide.impact || [],
                 techs: slide.techs || [],
                 videoTranscript: transcriptContent,
+                audienceLevel: level,
             };
 
             const response = await fetch('/api/tldr', {
@@ -153,6 +161,7 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
                 isLoading={isLoading}
                 error={error}
                 projectTitle={slide.title}
+                onAudienceSelect={handleAudienceSelect}
             />
         </>
     );

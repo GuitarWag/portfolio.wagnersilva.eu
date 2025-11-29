@@ -58,7 +58,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<TLDRRespo
         const body: TLDRRequest = await request.json();
 
         const userPrompt = buildUserPrompt(body);
-        const systemPrompt = buildSystemPrompt();
+        const systemPrompt = buildSystemPrompt(body.audienceLevel);
 
         const summary = await generateWithRetry(userPrompt, systemPrompt);
 

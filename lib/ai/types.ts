@@ -1,5 +1,7 @@
 // Types for AI TL;DR feature
 
+export type AudienceLevel = 'non-technical' | 'technical';
+
 export interface TLDRRequest {
     projectTitle: string;
     projectSubtitle: string;
@@ -9,6 +11,7 @@ export interface TLDRRequest {
     impact: string[];
     techs: string[];
     videoTranscript?: string;
+    audienceLevel?: AudienceLevel;
 }
 
 export interface TLDRResponse {

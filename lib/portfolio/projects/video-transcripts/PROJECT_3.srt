@@ -1,0 +1,180 @@
+1
+00:00:00,000 --> 00:00:03,360
+the three directional
+real time sync project.
+
+2
+00:00:03,540 --> 00:00:11,390
+Okay, so the same global solar company
+that I also built the webpage builder.
+
+3
+00:00:12,080 --> 00:00:17,700
+They had these sources of data that,
+one of them was Pardot sales was Pardot.
+
+4
+00:00:18,825 --> 00:00:20,505
+The other one was talent.
+
+5
+00:00:20,505 --> 00:00:23,445
+LMS, which is a LMS system.
+
+6
+00:00:23,879 --> 00:00:30,240
+For their process of certification
+of these installers as they need
+
+7
+00:00:30,240 --> 00:00:34,170
+training to actually install
+the solar panels in the houses.
+
+8
+00:00:34,379 --> 00:00:39,000
+So they want to, they wanted to track
+some information about this system.
+
+9
+00:00:39,599 --> 00:00:45,264
+And then another internal
+database that relates to another
+
+10
+00:00:45,264 --> 00:00:46,825
+tool that we've built for them.
+
+11
+00:00:46,944 --> 00:00:49,665
+So these two actually.
+
+12
+00:00:50,115 --> 00:00:54,585
+It is about the process of
+registering the projects that they
+
+13
+00:00:54,585 --> 00:00:59,265
+have done in the houses, or even
+sometimes it's commercial as well.
+
+14
+00:00:59,265 --> 00:01:04,665
+So we had three databases that they
+have shared information and they
+
+15
+00:01:04,665 --> 00:01:08,655
+need to be in sync and sometimes.
+
+16
+00:01:09,105 --> 00:01:13,275
+One of these databases, they
+would have new data that need to
+
+17
+00:01:13,275 --> 00:01:15,195
+be replicated into the other two.
+
+18
+00:01:15,195 --> 00:01:20,934
+So I've built a jobs mechanism
+that runs over cloud run jobs.
+
+19
+00:01:21,595 --> 00:01:30,455
+I think it has 12 or 13 actions that,
+that they execute synchronously and they.
+
+20
+00:01:31,430 --> 00:01:33,020
+They perform the updates.
+
+21
+00:01:33,290 --> 00:01:39,650
+Every update is saved into Firestore
+with before and after state snapshots.
+
+22
+00:01:39,650 --> 00:01:46,070
+So the people from the solar
+panel company can enter into
+
+23
+00:01:46,120 --> 00:01:48,100
+admin system and check actually.
+
+24
+00:01:49,205 --> 00:01:54,005
+What information changed and they can
+contact the support if they wanted that
+
+25
+00:01:54,005 --> 00:01:56,495
+to be reversed or corrected or anything.
+
+26
+00:01:56,734 --> 00:01:59,125
+It doesn't happen much,
+but it's a possibility.
+
+27
+00:01:59,125 --> 00:02:02,875
+So we audit every aspect of this process.
+
+28
+00:02:04,105 --> 00:02:11,155
+And one limitation here is that
+none of these systems had real time
+
+29
+00:02:11,785 --> 00:02:13,735
+events, like when data updated.
+
+30
+00:02:14,125 --> 00:02:16,015
+Just call an API.
+
+31
+00:02:16,015 --> 00:02:20,735
+So I had to implement a system
+based on cloud scheduler.
+
+32
+00:02:20,735 --> 00:02:27,745
+So every 15 minutes something runs
+in the system and detects which
+
+33
+00:02:27,745 --> 00:02:31,105
+other workflow needs to run based
+on the data that we collected.
+
+34
+00:02:32,305 --> 00:02:32,995
+And so on.
+
+35
+00:02:32,995 --> 00:02:42,705
+So there is one running mechanism in the
+middle that acts as this real time event
+
+36
+00:02:42,765 --> 00:02:45,385
+that these other systems they don't have.
+
+37
+00:02:45,385 --> 00:02:49,440
+So this was the main challenge on
+this, but it works really fine.
+
+38
+00:02:49,440 --> 00:02:53,245
+The costs are really low because the
+image are very optimized and they
+
+39
+00:02:53,245 --> 00:02:55,625
+run really fast for each workflow.
+

@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Sparkles, Lightbulb, FileText, Video, Cpu, ArrowRight } from 'lucide-react';
+import { X, Sparkles, Lightbulb, FileText, Video, Cpu, ArrowRight, User, Code2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import type { AudienceLevel } from '@/lib/ai/types';
 
 interface TLDRModalProps {
     isOpen: boolean;
@@ -10,6 +12,7 @@ interface TLDRModalProps {
     isLoading: boolean;
     error?: string;
     projectTitle: string;
+    onAudienceSelect?: (level: AudienceLevel) => void;
 }
 
 export const TLDRModal: React.FC<TLDRModalProps> = ({
@@ -18,10 +21,15 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
     summary,
     isLoading,
     error,
-    projectTitle
+    projectTitle,
+    onAudienceSelect
 }) => {
     const modalRef = useRef<HTMLDivElement>(null);
     const [activeTab, setActiveTab] = useState<'summary' | 'how-it-works'>('summary');
+    const [selectedAudience, setSelectedAudience] = useState<AudienceLevel | null>(null);
+
+    // Determine if we should show audience selection
+    const showAudienceSelection = !selectedAudience && !isLoading && !summary && !error;
 
     // Close on escape key
     useEffect(() => {
@@ -38,12 +46,18 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
         };
     }, [isOpen, onClose]);
 
-    // Reset tab when modal opens
+    // Reset state when modal opens
     useEffect(() => {
         if (isOpen) {
             setActiveTab('summary');
+            setSelectedAudience(null);
         }
     }, [isOpen]);
+
+    const handleAudienceClick = (level: AudienceLevel) => {
+        setSelectedAudience(level);
+        onAudienceSelect?.(level);
+    };
 
     // Close on outside click
     const handleBackdropClick = (e: React.MouseEvent) => {
@@ -122,6 +136,44 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                 <div className="px-6 py-5 overflow-y-auto max-h-[calc(80vh-200px)] scrollbar-thin">
                     {activeTab === 'summary' && (
                         <>
+                            {/* Audience Selection */}
+                            {showAudienceSelection && (
+                                <div className="flex flex-col items-center justify-center py-8">
+                                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Explain this like I&apos;m...</h4>
+                                    <p className="text-sm text-gray-500 mb-6">Choose your preferred level of detail</p>
+
+                                    <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+                                        {/* Non-technical option */}
+                                        <button
+                                            onClick={() => handleAudienceClick('non-technical')}
+                                            className="group flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+                                        >
+                                            <div className="p-3 bg-blue-100 group-hover:bg-blue-200 rounded-full transition-colors">
+                                                <User className="w-6 h-6 text-blue-600" />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="font-semibold text-gray-900">Not a tech person</p>
+                                                <p className="text-xs text-gray-500 mt-1">Plain language, no jargon</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Technical option */}
+                                        <button
+                                            onClick={() => handleAudienceClick('technical')}
+                                            className="group flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
+                                        >
+                                            <div className="p-3 bg-purple-100 group-hover:bg-purple-200 rounded-full transition-colors">
+                                                <Code2 className="w-6 h-6 text-purple-600" />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="font-semibold text-gray-900">Love the details</p>
+                                                <p className="text-xs text-gray-500 mt-1">Architecture & tech stack</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             {isLoading && (
                                 <div className="flex flex-col items-center justify-center py-12">
                                     <div className="relative">
@@ -129,7 +181,7 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                                         <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-purple-600" />
                                     </div>
                                     <p className="mt-4 text-gray-600 font-medium">Generating summary...</p>
-                                    <p className="text-sm text-gray-400">Powered by Gemini 2.0 Flash</p>
+                                    <p className="text-sm text-gray-400">Powered by Gemini 2.5 Flash</p>
                                 </div>
                             )}
 
@@ -149,28 +201,10 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                             )}
 
                             {summary && !isLoading && !error && (
-                                <div className="prose prose-sm max-w-none">
-                                    {summary.split('\n').map((line, index) => {
-                                        // Handle bold headers like **The Challenge**
-                                        if (line.match(/^\*\*[^*]+\*\*$/)) {
-                                            const title = line.replace(/\*\*/g, '');
-                                            return (
-                                                <h4 key={index} className="text-base font-semibold text-gray-900 mt-5 mb-2 first:mt-0 border-b border-gray-200 pb-1">
-                                                    {title}
-                                                </h4>
-                                            );
-                                        }
-                                        // Handle empty lines
-                                        if (line.trim() === '') {
-                                            return <div key={index} className="h-2" />;
-                                        }
-                                        // Regular paragraph
-                                        return (
-                                            <p key={index} className="text-gray-700 leading-relaxed mb-2">
-                                                {line}
-                                            </p>
-                                        );
-                                    })}
+                                <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-2 prose-ul:my-2 prose-li:text-gray-700 prose-strong:text-gray-900 prose-hr:my-4 prose-hr:border-gray-200">
+                                    <ReactMarkdown>
+                                        {summary}
+                                    </ReactMarkdown>
                                 </div>
                             )}
                         </>
@@ -234,7 +268,7 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                                         <div>
                                             <p className="font-medium text-gray-900">3. AI Processing</p>
                                             <p className="text-sm text-gray-600">
-                                                Gemini 2.0 Flash receives both data sources with a crafted prompt. It synthesizes a concise summary that captures the essence of each project.
+                                                Gemini 2.5 Flash receives both data sources with a crafted prompt. It synthesizes a concise summary that captures the essence of each project.
                                             </p>
                                         </div>
                                     </div>
@@ -251,7 +285,7 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                                         <div>
                                             <p className="font-medium text-gray-900">4. Real-time Generation</p>
                                             <p className="text-sm text-gray-600">
-                                                Summaries are generated on-demand via a Next.js API route. No pre-generated content — it&apos;s fresh every time you click.
+                                                Summaries are generated on-demand via a Next.js API route. I could cache responses since inputs are static per project, but I intentionally generate fresh summaries each time — demonstrating real AI integration, not just serving stored text.
                                             </p>
                                         </div>
                                     </div>
@@ -269,7 +303,7 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                             {/* Tech stack */}
                             <div className="flex flex-wrap gap-2">
                                 <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Next.js API Routes</span>
-                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Gemini 2.0 Flash</span>
+                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Gemini 2.5 Flash</span>
                                 <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">TypeScript</span>
                                 <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Prompt Engineering</span>
                                 <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Video Transcription</span>
@@ -279,11 +313,13 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                {!isLoading && (
+                {!isLoading && !showAudienceSelection && (
                     <div className="px-6 py-3 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
                         <span className="text-xs text-gray-400 flex items-center gap-1">
                             <Sparkles className="w-3 h-3" />
-                            {activeTab === 'summary' ? 'Generated by AI based on project data' : 'Built by Wagner Silva'}
+                            {activeTab === 'summary'
+                                ? `Generated by AI · ${selectedAudience === 'technical' ? 'Technical details' : 'Plain language'}`
+                                : 'Built by Wagner Silva'}
                         </span>
                         <button
                             onClick={onClose}

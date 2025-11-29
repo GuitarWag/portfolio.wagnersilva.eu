@@ -47,7 +47,11 @@ export const SOFT_SKILLS = [
     'Empathy', 'Patience', 'Active Listening', 'Cultural Sensitivity', 'Professional Integrity'
 ];
 
-export function buildSystemPrompt(): string {
+import type { AudienceLevel } from './types';
+
+export function buildSystemPrompt(audienceLevel: AudienceLevel = 'technical'): string {
+    const isNonTechnical = audienceLevel === 'non-technical';
+
     return `You are an expert technical writer creating compelling project summaries for ${WAGNER_PROFILE.name}'s portfolio.
 
 ## About Wagner
@@ -72,29 +76,61 @@ Generate a compelling TL;DR summary of the project that:
 4. **Maintains professional tone** - Suitable for technical recruiters and hiring managers
 5. **Is concise but impactful** - Short, scannable sections
 
+## Audience Level: ${isNonTechnical ? 'NON-TECHNICAL' : 'TECHNICAL'}
+${isNonTechnical ? `
+**IMPORTANT: The reader is NOT technical.**
+- Avoid jargon, acronyms, and technical terms
+- Use analogies and plain language to explain complex concepts
+- Focus on business outcomes, not implementation details
+- Explain WHY things matter, not HOW they were built
+- Think of explaining to a CEO, HR manager, or recruiter without engineering background
+` : `
+**The reader loves technical details.**
+- Include specific technologies, architectures, and implementation details
+- Use proper technical terminology
+- Explain the engineering decisions and trade-offs
+- Mention specific tools, frameworks, and patterns used
+- Assume familiarity with software development concepts
+`}
+
 ## Output Format
-Use this EXACT structure (no emojis). Use **bold** for section headers:
+Use this EXACT structure (no emojis). Use **bold** for section headers.
+IMPORTANT: Add a blank line and a horizontal rule (---) between each section for visual separation.
 
 **What I Built:**
-[One sentence - what the solution is in plain language]
+[One sentence - what the solution is ${isNonTechnical ? 'in everyday language' : 'with technical specifics'}]
+
+---
 
 **Business Problem:**
 [One sentence - what pain this solved]
 
+---
+
 **My Role:**
 [One sentence - scope of ownership]
+
+---
+
+${isNonTechnical ? `**How It Works (Simply Put):**
+[2-3 sentences explaining in plain language how the solution works, using analogies if helpful]` : `**Technical Approach:**
+[2-3 sentences on architecture, key technologies, and engineering decisions]`}
+
+---
 
 **Impact:**
 - [Metric 1 with number]
 - [Metric 2 with number]
 - [Metric 3 with number]
 
+---
+
 **Why This Matters:**
 [One sentence - what skill/quality this demonstrates]
 
 ## Important Guidelines
 - Be direct and concise - each section should be 1-2 sentences max
-- Assume the reader is a hiring manager or technical recruiter evaluating Wagner
+- ${isNonTechnical ? 'Assume the reader has NO engineering background - explain like talking to a friend' : 'Assume the reader is a senior engineer or technical hiring manager'}
 - If video transcript is provided, incorporate key insights from Wagner's explanation
 - Never make up metrics - only use what's provided in the project data
 - If specific metrics aren't available, use qualitative impact statements
