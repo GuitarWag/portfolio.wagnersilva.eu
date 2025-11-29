@@ -20,6 +20,7 @@ interface PresenterVideoProps {
     subtitles?: string;
     onEnded?: () => void;
     projectTitle?: string;
+    posterTime?: number; // Time in seconds to show as poster frame
 }
 
 const positionClasses: Record<VideoPosition, string> = {
@@ -82,13 +83,45 @@ function parseVTT(content: string): Cue[] {
     return cues;
 }
 
-export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded, projectTitle }) => {
+export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded, projectTitle, posterTime }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const { playingVideoId, setPlayingVideoId, setCurrentSubtitle, subtitlesEnabled } = useVideoContext();
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [showStatus, setShowStatus] = useState(true);
     const [cues, setCues] = useState<Cue[]>([]);
+    const [posterReady, setPosterReady] = useState(!posterTime); // If no posterTime, ready immediately
+    const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
+
+    // Set video to posterTime on load to show that frame as thumbnail
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video || !posterTime) return;
+
+        const seekToPosterTime = () => {
+            if (video.readyState >= 1) {
+                video.currentTime = posterTime;
+            }
+        };
+
+        const handleSeeked = () => {
+            setPosterReady(true);
+        };
+
+        // If metadata already loaded, seek immediately
+        if (video.readyState >= 1) {
+            seekToPosterTime();
+        } else {
+            video.addEventListener('loadedmetadata', seekToPosterTime);
+        }
+
+        video.addEventListener('seeked', handleSeeked);
+
+        return () => {
+            video.removeEventListener('loadedmetadata', seekToPosterTime);
+            video.removeEventListener('seeked', handleSeeked);
+        };
+    }, [posterTime]);
 
     // Load and parse subtitles
     useEffect(() => {
@@ -109,7 +142,8 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         if (!video || cues.length === 0) return;
 
         const handleTimeUpdate = () => {
-            if (!subtitlesEnabled) {
+            // Don't show subtitles if video is paused (e.g., during poster frame seek)
+            if (!subtitlesEnabled || video.paused) {
                 setCurrentSubtitle('');
                 return;
             }
@@ -186,6 +220,11 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
     const togglePlay = () => {
         if (videoRef.current) {
             if (videoRef.current.paused) {
+                // If first play and posterTime was set, start from beginning
+                if (!hasPlayedOnce && posterTime) {
+                    videoRef.current.currentTime = 0;
+                    setHasPlayedOnce(true);
+                }
                 setPlayingVideoId(id);
                 videoRef.current.play();
                 setIsPlaying(true);
@@ -206,6 +245,7 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
                 src={src}
                 className="w-full h-full object-cover"
                 playsInline
+                preload={posterTime ? "auto" : "metadata"}
             />
 
             {/* Gradient Overlay */}

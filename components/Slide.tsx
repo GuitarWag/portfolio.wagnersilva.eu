@@ -7,6 +7,7 @@ import { MermaidDiagram } from './MermaidDiagram';
 import { PresenterVideo } from './PresenterVideo';
 import { PresenterAudio } from './PresenterAudio';
 import { TLDRButton } from './TLDRButton';
+import { FeedbackForm } from './FeedbackForm';
 import {
     Shield, MapPin, Code2, Cloud, Database, Globe, Zap,
     TrendingDown, Users, Server, Lock, Rocket, FileCheck,
@@ -26,9 +27,10 @@ interface SlideProps {
     slide: SlideData;
     slideNumber: number;
     totalSlides: number;
+    presentationId: string;
 }
 
-export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides }) => {
+export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, presentationId }) => {
     const baseClasses = "w-full h-screen flex flex-col p-16 bg-white overflow-hidden break-after-page page-break-after-always relative";
 
     const renderContent = () => {
@@ -81,6 +83,11 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                                 <span className="font-medium">{slide.currentLocation}</span>
                                 <span className="text-blue-600">→</span>
                                 <span className="font-medium">{slide.targetLocation}</span>
+                            </div>
+                        )}
+                        {slide.id === 'closing' && (
+                            <div className="mt-8">
+                                <FeedbackForm presentationId={presentationId} />
                             </div>
                         )}
                     </div>
@@ -496,6 +503,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                     position={slide.videoPosition}
                     subtitles={slide.videoSubtitles}
                     projectTitle={slide.title}
+                    posterTime={slide.videoPosterTime}
                     onEnded={slideNumber === 1 ? () => {
                         const nextSlide = document.querySelector(`[data-slide="${slideNumber + 1}"]`);
                         nextSlide?.scrollIntoView({ behavior: 'smooth' });

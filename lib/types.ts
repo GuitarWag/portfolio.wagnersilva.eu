@@ -53,6 +53,7 @@ export interface SlideData {
     videoUrl?: string;
     videoSubtitles?: string; // URL to .vtt subtitle file
     videoPosition?: 'tr' | 'br' | 'bl' | 'tl' | 'center';
+    videoPosterTime?: number; // Time in seconds to capture poster frame from video
     // Audio explanation for the slide
     audioUrl?: string;
     audioSubtitles?: string; // URL to .vtt subtitle file for audio

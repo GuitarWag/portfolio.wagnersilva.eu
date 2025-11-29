@@ -123,6 +123,7 @@ if (stockholmFullPortfolio.slides.length > 0) {
     stockholmFullPortfolio.slides[0].videoUrl = firstSlideVideo;
     stockholmFullPortfolio.slides[0].videoTranscript = firstSlideTranscript;
     stockholmFullPortfolio.slides[0].videoSubtitles = firstSlideSubtitles;
+    stockholmFullPortfolio.slides[0].videoPosterTime = 10; // Show frame at 10 seconds as thumbnail
 }
 
 // Project 1: Page Builder Platform
@@ -179,7 +180,34 @@ if (sftpSlide) {
     sftpSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_6.md';
 }
 
-// Projects 7-12 don't have videos yet - leaving without video configuration
+// Project 7: API Integration
+const apiIntegrationSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-api-integration');
+if (apiIntegrationSlide) {
+    apiIntegrationSlide.videoUrl = `${videoBasePath}/PROJECT_7.mp4`;
+    apiIntegrationSlide.videoPosition = 'br';
+    apiIntegrationSlide.videoSubtitles = '/video-transcripts/PROJECT_7.vtt';
+    apiIntegrationSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_7.md';
+}
+
+// Project 8: CI/CD Pipeline
+const cicdSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cicd-pipeline');
+if (cicdSlide) {
+    cicdSlide.videoUrl = `${videoBasePath}/PROJECT_8.mp4`;
+    cicdSlide.videoPosition = 'br';
+    cicdSlide.videoSubtitles = '/video-transcripts/PROJECT_8.vtt';
+    cicdSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_8.md';
+}
+
+// Project 9: APISIX Gateway
+const apisixSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-apisix-gateway');
+if (apisixSlide) {
+    apisixSlide.videoUrl = `${videoBasePath}/PROJECT_9.mp4`;
+    apisixSlide.videoPosition = 'br';
+    apisixSlide.videoSubtitles = '/video-transcripts/PROJECT_9.vtt';
+    apisixSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_9.md';
+}
+
+// Projects 10-12 don't have videos yet - leaving without video configuration
 
 // Find closing (Thank You) slide and add final video
 const lastVideo = `${videoBasePath}/LAST_VIDEO.mp4`;

@@ -46,7 +46,7 @@ export const Presentation: React.FC<PresentationProps> = ({ data }) => {
 
                 <div className="print:w-full print:h-full">
                     {data.slides.map((slide, index) => (
-                        <Slide key={slide.id} slide={slide} slideNumber={index + 1} totalSlides={data.slides.length} />
+                        <Slide key={slide.id} slide={slide} slideNumber={index + 1} totalSlides={data.slides.length} presentationId={data.id} />
                     ))}
                 </div>
             </div>
