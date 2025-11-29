@@ -51,7 +51,9 @@ const config: PresentationBuildConfig = {
         // Monitoring & Observability
         'Prometheus', 'Cloud Monitoring', 'Cloud Logging', 'SRE Practices',
         // Other Technical
-        'System Design', 'Architecture Patterns', 'Microservices', 'Serverless', 'Event-Driven Architecture', 'Cost Optimization'
+        'System Design', 'Architecture Patterns', 'Microservices', 'Serverless', 'Event-Driven Architecture', 'Cost Optimization',
+        // Project Management
+        'Jira', 'Confluence', 'Agile'
     ],
     softSkills: [
         // Leadership & Management
@@ -65,6 +67,7 @@ const config: PresentationBuildConfig = {
         // Interpersonal
         'Empathy', 'Patience', 'Active Listening', 'Cultural Sensitivity', 'Professional Integrity'
     ],
+    skillsAudioUrl: '/video-transcripts/skills.m4a',
     includeCostImpact: false,
     includeAchievements: true,
     includeStrengths: true,
@@ -109,104 +112,81 @@ if (whatIBringIndex !== -1) {
     stockholmFullPortfolio.slides.splice(whatIBringIndex, 1);
 }
 
-// Add video to the first slide and first project
-const placeholderVideo = 'https://storage.googleapis.com/wagnersilva-eu-assets/placeholder.mp4';
+// Video URLs base path
+const videoBasePath = 'https://storage.googleapis.com/wagnersilva-eu-assets/portfolio-videos';
+
+// Add video to the first slide (title slide)
+const firstSlideVideo = `${videoBasePath}/01_FIRST_VIDEO.mp4`;
+const firstSlideTranscript = `Hey, thank you so much for being here and taking the time to go through my portfolio. I've curated 12 projects that demonstrate all my technical and soft skills and how adaptable I can be to the company goals. These are all real systems, and they are just a glimpse of the projects that I've built and maintained. Over the past seven, eight years, these systems, they are running in production up to this current date. Let's walk through them.`;
+const firstSlideSubtitles = '/video-transcripts/01_FIRST_VIDEO.vtt';
 if (stockholmFullPortfolio.slides.length > 0) {
-    stockholmFullPortfolio.slides[0].videoUrl = placeholderVideo;
-    stockholmFullPortfolio.slides[0].videoTranscript = '';
+    stockholmFullPortfolio.slides[0].videoUrl = firstSlideVideo;
+    stockholmFullPortfolio.slides[0].videoTranscript = firstSlideTranscript;
+    stockholmFullPortfolio.slides[0].videoSubtitles = firstSlideSubtitles;
 }
-// Find first project slide and add video
+
+// Project 1: Page Builder Platform
 const firstProjectSlide = stockholmFullPortfolio.slides.find(s => s.id.startsWith('project-'));
 if (firstProjectSlide) {
-    firstProjectSlide.videoUrl = placeholderVideo;
-    firstProjectSlide.videoPosition = 'tr';
-    firstProjectSlide.videoTranscript = '';
+    firstProjectSlide.videoUrl = `${videoBasePath}/PROJECT_1.mp4`;
+    firstProjectSlide.videoPosition = 'br';
+    firstProjectSlide.videoSubtitles = '/video-transcripts/PROJECT_1.vtt';
+    firstProjectSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_1.md';
 }
 
-// Find second project slide (rag-system) and add video
+// Project 2: RAG System
 const ragProjectSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-rag-system');
 if (ragProjectSlide) {
-    ragProjectSlide.videoUrl = placeholderVideo;
+    ragProjectSlide.videoUrl = `${videoBasePath}/PROJECT_2.mp4`;
     ragProjectSlide.videoPosition = 'br';
-    ragProjectSlide.videoTranscript = '';
+    ragProjectSlide.videoSubtitles = '/video-transcripts/PROJECT_2.vtt';
+    ragProjectSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_2.md';
 }
 
-// Find tri-directional-sync project and add video
+// Project 3: Tri-directional Sync
 const triSyncSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-tri-directional-sync');
 if (triSyncSlide) {
-    triSyncSlide.videoUrl = placeholderVideo;
+    triSyncSlide.videoUrl = `${videoBasePath}/PROJECT_3.mp4`;
     triSyncSlide.videoPosition = 'br';
-    triSyncSlide.videoTranscript = '';
+    triSyncSlide.videoSubtitles = '/video-transcripts/PROJECT_3.vtt';
+    triSyncSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_3.md';
 }
 
-// Find cost-optimization project and add video
+// Project 4: Cost Optimization
 const costOptSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cost-optimization');
 if (costOptSlide) {
-    costOptSlide.videoUrl = placeholderVideo;
-    costOptSlide.videoPosition = 'tr';
-    costOptSlide.videoTranscript = '';
+    costOptSlide.videoUrl = `${videoBasePath}/PROJECT_4.mp4`;
+    costOptSlide.videoPosition = 'br';
+    costOptSlide.videoSubtitles = '/video-transcripts/PROJECT_4.vtt';
+    costOptSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_4.md';
 }
 
-// Find rls-security project and add video
+// Project 5: RLS Security
 const rlsSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-rls-security');
 if (rlsSlide) {
-    rlsSlide.videoUrl = placeholderVideo;
-    rlsSlide.videoPosition = 'tr';
-    rlsSlide.videoTranscript = '';
+    rlsSlide.videoUrl = `${videoBasePath}/PROJECT_5.mp4`;
+    rlsSlide.videoPosition = 'br';
+    rlsSlide.videoSubtitles = '/video-transcripts/PROJECT_5.vtt';
+    rlsSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_5.md';
 }
 
-// Find sftp-architecture project and add video
+// Project 6: SFTP Architecture
 const sftpSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-sftp-architecture');
 if (sftpSlide) {
-    sftpSlide.videoUrl = placeholderVideo;
-    sftpSlide.videoPosition = 'tr';
-    sftpSlide.videoTranscript = '';
+    sftpSlide.videoUrl = `${videoBasePath}/PROJECT_6.mp4`;
+    sftpSlide.videoPosition = 'br';
+    sftpSlide.videoSubtitles = '/video-transcripts/PROJECT_6.vtt';
+    sftpSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_6.md';
 }
 
-// Find api-integration project and add video
-const apiSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-api-integration');
-if (apiSlide) {
-    apiSlide.videoUrl = placeholderVideo;
-    apiSlide.videoPosition = 'bl';
-    apiSlide.videoTranscript = '';
-}
+// Projects 7-12 don't have videos yet - leaving without video configuration
 
-// Find cicd-pipeline project and add video
-const cicdSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cicd-pipeline');
-if (cicdSlide) {
-    cicdSlide.videoUrl = placeholderVideo;
-    cicdSlide.videoPosition = 'br';
-    cicdSlide.videoTranscript = '';
-}
-
-// Find apisix-gateway project and add video
-const apisixSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-apisix-gateway');
-if (apisixSlide) {
-    apisixSlide.videoUrl = placeholderVideo;
-    apisixSlide.videoPosition = 'tr';
-    apisixSlide.videoTranscript = '';
-}
-
-// Find cdc-pipeline project and add video
-const cdcSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cdc-pipeline');
-if (cdcSlide) {
-    cdcSlide.videoUrl = placeholderVideo;
-    cdcSlide.videoPosition = 'tr';
-    cdcSlide.videoTranscript = '';
-}
-
-// Find db-anonymization project and add video
-const dbAnonSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-db-anonymization');
-if (dbAnonSlide) {
-    dbAnonSlide.videoUrl = placeholderVideo;
-    dbAnonSlide.videoPosition = 'tr';
-    dbAnonSlide.videoTranscript = '';
-}
-
-// Find sharepoint-leadership project and add video
-const leadershipSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-sharepoint-leadership');
-if (leadershipSlide) {
-    leadershipSlide.videoUrl = placeholderVideo;
-    leadershipSlide.videoPosition = 'tr';
-    leadershipSlide.videoTranscript = '';
+// Find closing (Thank You) slide and add final video
+const lastVideo = `${videoBasePath}/LAST_VIDEO.mp4`;
+const closingSlide = stockholmFullPortfolio.slides.find(s => s.id === 'closing');
+if (closingSlide) {
+    closingSlide.videoUrl = lastVideo;
+    closingSlide.videoPosition = 'br';
+    closingSlide.videoSubtitles = '/video-transcripts/LAST_VIDEO.vtt';
+    closingSlide.videoTranscript = '';
 }

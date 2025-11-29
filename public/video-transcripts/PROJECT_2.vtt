@@ -1,0 +1,298 @@
+WEBVTT
+
+1
+00:00:00.049 --> 00:00:04.310
+The Enterprise RAG and AI agents, okay.
+
+2
+00:00:04.699 --> 00:00:12.663
+We have a big customer from Germany and
+they are very worried about AI models
+
+3
+00:00:13.443 --> 00:00:15.273
+ingesting their data and everything.
+
+4
+00:00:15.273 --> 00:00:22.714
+So they asked me first to build a chat
+interface that connected to Gemini
+
+5
+00:00:22.720 --> 00:00:27.570
+models directly using the Vertex SDK
+because they were very worried about
+
+6
+00:00:28.995 --> 00:00:36.000
+the employees using separate personal
+accounts with AI to just throwing
+
+7
+00:00:36.000 --> 00:00:38.460
+out PDFs and CSVs and not being
+
+8
+00:00:39.105 --> 00:00:43.575
+compliant to a specific protocol
+of handling data in the company.
+
+9
+00:00:43.575 --> 00:00:48.645
+So the first, okay, the first step was
+build a chat interface that connected
+
+10
+00:00:48.645 --> 00:00:55.565
+to Gemini and they would just use it,
+this chat interface, plain model single
+
+11
+00:00:55.565 --> 00:00:59.915
+sign-on with the Google IAP in the
+middle to, so they, so the system is
+
+12
+00:00:59.915 --> 00:01:04.145
+protected and they don't have to log
+in again with another credential type.
+
+13
+00:01:04.195 --> 00:01:07.595
+This was done and then this one grows.
+
+14
+00:01:07.625 --> 00:01:14.005
+They had agents and sub agents that
+they could edit the system prompt to
+
+15
+00:01:14.005 --> 00:01:20.905
+make a sub agent to know things better,
+like not connected to any database yet,
+
+16
+00:01:20.905 --> 00:01:26.295
+but they could upload things, upload
+PDFs and put some raw text and give
+
+17
+00:01:26.345 --> 00:01:31.625
+system props to the agent so it'll be
+a little bit more specialized and still
+
+18
+00:01:31.625 --> 00:01:36.705
+be using the plain model of Gemini, not
+needing to fine tune on every anything.
+
+19
+00:01:36.735 --> 00:01:43.555
+So this solution itself saved a lot of
+money because they didn't have to pay
+
+20
+00:01:44.650 --> 00:01:48.470
+individual license for pro models anymore.
+
+21
+00:01:49.400 --> 00:01:53.570
+So the cost was all centralized
+on this and is all pay as you go.
+
+22
+00:01:53.580 --> 00:01:55.950
+All API calls to Vertex
+
+23
+00:01:56.010 --> 00:01:59.860
+SDK. I'm sorry, I'm being
+very specific, but that's it.
+
+24
+00:02:01.150 --> 00:02:04.960
+All API calls to the Vertex
+SDK, they were all labeled by
+
+25
+00:02:04.960 --> 00:02:07.120
+application environment and user.
+
+26
+00:02:07.170 --> 00:02:12.450
+At the end of the month, I can show them a
+dashboard on the billing account and they
+
+27
+00:02:12.450 --> 00:02:21.300
+can see which user, which user uses the
+system the most, and the costs on that.
+
+28
+00:02:21.330 --> 00:02:27.290
+The costs are very low now because
+they're using mostly the optimized model.
+
+29
+00:02:28.735 --> 00:02:31.525
+Not everybody actually uses the pro.
+
+30
+00:02:32.005 --> 00:02:33.695
+But, uh, yeah it's been great.
+
+31
+00:02:33.695 --> 00:02:38.345
+So, and about the RAG, after a while using
+the chat system, they were very happy with
+
+32
+00:02:38.345 --> 00:02:43.680
+the possibility of having base agents,
+sub agents, projects and everything.
+
+33
+00:02:43.730 --> 00:02:48.700
+So they asked about a business
+intelligence layer that would know
+
+34
+00:02:48.880 --> 00:02:54.490
+anything, everything about all the
+things that happen in the company
+
+35
+00:02:54.490 --> 00:02:57.310
+and the campaigns that they do
+and everything that they sell.
+
+36
+00:02:57.310 --> 00:03:02.110
+So I implemented the RAG system
+for them and connected to the chat.
+
+37
+00:03:02.110 --> 00:03:06.750
+So it was really nice developing
+this because I had never
+
+38
+00:03:06.750 --> 00:03:08.505
+worked with Neo4j before.
+
+39
+00:03:09.580 --> 00:03:11.560
+And in graph databases in general.
+
+40
+00:03:11.560 --> 00:03:15.340
+So it was a really new experience
+for me and it was really great.
+
+41
+00:03:16.000 --> 00:03:22.780
+So I connected Neo4j, Qdrant,
+and what was the other one?
+
+42
+00:03:23.311 --> 00:03:26.191
+Yeah, that was a Postgres
+database in the middle as well
+
+43
+00:03:26.191 --> 00:03:28.201
+to just store some metadata.
+
+44
+00:03:29.971 --> 00:03:35.911
+And we did our architecture that we have
+an ingestion system that we use Docling
+
+45
+00:03:36.246 --> 00:03:40.626
+in Python to ingest documents and embed
+them into these, all these databases.
+
+46
+00:03:41.130 --> 00:03:49.746
+And we have a dynamic mechanism of tags
+so we can tag content as security level.
+
+47
+00:03:49.746 --> 00:03:50.271
+So we have
+
+48
+00:03:50.656 --> 00:03:54.366
+public, private, admin, whatever
+security level that we want
+
+49
+00:03:54.366 --> 00:03:56.171
+to target in each document.
+
+50
+00:03:57.281 --> 00:04:02.321
+And this tag also helps the Neo4j
+database to create the graph of the
+
+51
+00:04:02.321 --> 00:04:06.421
+knowledge about certain aspect of
+the document, which is really cool.
+
+52
+00:04:07.201 --> 00:04:10.561
+And now we have a system
+that's connected to this
+
+53
+00:04:11.896 --> 00:04:14.646
+agent sub agents in the
+other chat application.
+
+54
+00:04:14.646 --> 00:04:22.796
+They can set up a sub agent to know
+a specific content about a specific
+
+55
+00:04:22.796 --> 00:04:25.136
+campaign, I would say, using the tags.
+
+56
+00:04:25.856 --> 00:04:29.956
+And whenever they talk with the
+agent it will dynamically query
+
+57
+00:04:29.956 --> 00:04:33.196
+the RAG system in a scoped way.
+
+58
+00:04:33.196 --> 00:04:39.301
+So it'll not RAG all over the
+other documents that are not
+
+59
+00:04:39.301 --> 00:04:41.401
+relevant to that specific chat.
+
+60
+00:04:42.031 --> 00:04:45.661
+So it increases a lot the
+quality of the responses and
+
+61
+00:04:46.201 --> 00:04:48.031
+the general architecture itself.
+
+62
+00:04:48.515 --> 00:04:48.635
+Okay.
+
+63
+00:04:48.635 --> 00:04:52.305
+Sorry, this one was long,
+but it was a complex subject.
+

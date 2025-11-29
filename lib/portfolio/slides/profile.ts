@@ -228,13 +228,15 @@ export function createGrowthAreasSlide(areasForGrowth: string[]): SlideData {
 }
 
 // Skills slide with chips
-export function createSkillsSlide(hardSkills: string[], softSkills: string[]): SlideData {
+export function createSkillsSlide(hardSkills: string[], softSkills: string[], audioUrl?: string, audioSubtitles?: string): SlideData {
     return {
         id: 'skills',
         title: 'Skills',
         layout: 'skills-chips',
         hardSkills,
         softSkills,
+        audioUrl,
+        audioSubtitles,
         footer: "Each project taught me something new. I'm not done learning."
     };
 }

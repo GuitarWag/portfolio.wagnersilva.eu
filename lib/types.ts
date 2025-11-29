@@ -49,8 +49,13 @@ export interface SlideData {
     targetLocation?: string;
     // Video explanation for the slide
     videoTranscript?: string;
+    videoTranscriptUrl?: string; // URL to .md file with transcript for AI context
     videoUrl?: string;
+    videoSubtitles?: string; // URL to .vtt subtitle file
     videoPosition?: 'tr' | 'br' | 'bl' | 'tl' | 'center';
+    // Audio explanation for the slide
+    audioUrl?: string;
+    audioSubtitles?: string; // URL to .vtt subtitle file for audio
 }
 
 export interface PresentationData {

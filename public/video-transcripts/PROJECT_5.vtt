@@ -1,0 +1,220 @@
+WEBVTT
+
+1
+00:00:01.740 --> 00:00:02.250
+Okay.
+
+2
+00:00:02.550 --> 00:00:05.220
+Row level security system.
+
+3
+00:00:05.490 --> 00:00:07.310
+Okay, let me paint the picture here.
+
+4
+00:00:07.310 --> 00:00:12.649
+So this big customer in Germany
+that we have, they have a client
+
+5
+00:00:13.040 --> 00:00:19.099
+of course, and this client is a big
+company that makes coffee machines
+
+6
+00:00:19.099 --> 00:00:21.980
+in the whole Europe, like they are,
+
+7
+00:00:22.160 --> 00:00:25.280
+I think they, perhaps
+they're the biggest one.
+
+8
+00:00:25.910 --> 00:00:29.540
+I don't know, but yeah, I
+think they are the biggest one.
+
+9
+00:00:30.440 --> 00:00:36.745
+So they had this manufacturer system
+that they log in, the coffee brand,
+
+10
+00:00:37.145 --> 00:00:40.595
+they log in and they see reports.
+
+11
+00:00:40.685 --> 00:00:44.585
+They have many reports on Looker
+Studio that they are all embedded
+
+12
+00:00:45.740 --> 00:00:51.970
+with iframe into this application
+and they were using like Google
+
+13
+00:00:51.970 --> 00:00:56.110
+login for these reports don't be
+like explicit on the internet.
+
+14
+00:00:56.160 --> 00:00:58.980
+But at some point it was not
+working for their staff.
+
+15
+00:00:58.980 --> 00:01:04.620
+So they requested us to make these
+reports to have a public link.
+
+16
+00:01:06.030 --> 00:01:10.410
+And with a public link, all the data
+would be exposed to the internet.
+
+17
+00:01:10.410 --> 00:01:17.280
+So the challenge here was, okay, how do we
+hide the data if somebody finds the link.
+
+18
+00:01:18.770 --> 00:01:24.500
+Then this project started, I
+architected the whole connection
+
+19
+00:01:24.500 --> 00:01:26.060
+of things into the system.
+
+20
+00:01:27.680 --> 00:01:37.060
+Beginning in the embedding platform that
+would inject JWT Token and I implemented
+
+21
+00:01:37.300 --> 00:01:39.640
+and I planned the reverse proxy.
+
+22
+00:01:40.150 --> 00:01:45.250
+This reverse proxy was written
+entirely, it was written in Python
+
+23
+00:01:45.580 --> 00:01:53.110
+and would intercept the initial
+request from our front end.
+
+24
+00:01:53.575 --> 00:01:57.384
+With the JWT token, it'll
+extract a lot of data,
+
+25
+00:01:57.384 --> 00:01:59.365
+check if that user can check the report,
+
+26
+00:01:59.875 --> 00:02:05.695
+it'll check what report we are talking
+about, and then it'll fetch the
+
+27
+00:02:05.695 --> 00:02:12.325
+secrets that we need to actually show
+the data back in the Looker Studio.
+
+28
+00:02:13.495 --> 00:02:18.895
+Because Looker Studio in this scenario
+would be expecting
+
+29
+00:02:18.895 --> 00:02:22.105
+the, would be expecting secrets as
+
+30
+00:02:22.780 --> 00:02:28.610
+params in the URL and then we inject all
+the way through the queries in BigQuery.
+
+31
+00:02:28.730 --> 00:02:32.030
+So it's a whole system.
+
+32
+00:02:32.030 --> 00:02:38.120
+So the goal was, okay, at the end, if
+there's no token in the URL in the
+
+33
+00:02:38.120 --> 00:02:40.760
+beginning, we shouldn't show data.
+
+34
+00:02:40.790 --> 00:02:43.940
+So this was perfectly implemented.
+
+35
+00:02:44.630 --> 00:02:48.799
+I provided a very high quality
+documentation for the report team on
+
+36
+00:02:48.799 --> 00:02:56.000
+how they proceed to actually adapt
+every table or every report that
+
+37
+00:02:56.000 --> 00:02:57.560
+they wanted to have this feature.
+
+38
+00:02:57.620 --> 00:03:04.710
+And actually this feature was
+replicated across other clients
+
+39
+00:03:04.770 --> 00:03:06.840
+from our customer in Germany.
+
+40
+00:03:06.840 --> 00:03:12.330
+So they were able to apply this strategy
+to many brands, and they were very happy
+
+41
+00:03:12.330 --> 00:03:15.845
+because for the final customer,
+
+42
+00:03:16.230 --> 00:03:22.470
+they don't need to actually log
+in with Google inside one platform
+
+43
+00:03:22.470 --> 00:03:24.420
+that they already have logged in.
+
+44
+00:03:24.420 --> 00:03:27.000
+So it was a strange situation.
+
+45
+00:03:27.000 --> 00:03:32.430
+So now it's seamlessly, like they
+just enter the manufacturer portal
+
+46
+00:03:32.459 --> 00:03:38.280
+and they see the data that they
+need to see, and if the link of the
+
+47
+00:03:38.280 --> 00:03:44.460
+report leaks somehow, they, someone
+guesses, no data is exposed whatsoever.
+

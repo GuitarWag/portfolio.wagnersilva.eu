@@ -11,6 +11,7 @@
     "pdf": "node scripts/export-pdf.cjs http://localhost:3000"
   },
   "dependencies": {
+    "@google/genai": "^1.30.0",
     "@xyflow/react": "^12.9.3",
     "lucide-react": "^0.554.0",
     "mermaid": "^11.12.1",

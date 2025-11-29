@@ -1,19 +1,32 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface VideoContextType {
     playingVideoId: string | null;
     setPlayingVideoId: (id: string | null) => void;
+    currentSubtitle: string;
+    setCurrentSubtitle: (text: string) => void;
+    subtitlesEnabled: boolean;
+    setSubtitlesEnabled: (enabled: boolean) => void;
 }
 
 const VideoContext = createContext<VideoContextType | undefined>(undefined);
 
 export function VideoProvider({ children }: { children: React.ReactNode }) {
     const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+    const [currentSubtitle, setCurrentSubtitle] = useState<string>('');
+    const [subtitlesEnabled, setSubtitlesEnabled] = useState<boolean>(true);
 
     return (
-        <VideoContext.Provider value={{ playingVideoId, setPlayingVideoId }}>
+        <VideoContext.Provider value={{
+            playingVideoId,
+            setPlayingVideoId,
+            currentSubtitle,
+            setCurrentSubtitle,
+            subtitlesEnabled,
+            setSubtitlesEnabled
+        }}>
             {children}
         </VideoContext.Provider>
     );

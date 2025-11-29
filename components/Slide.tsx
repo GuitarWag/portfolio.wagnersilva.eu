@@ -5,6 +5,8 @@ import type { SlideData, IconName } from '@/lib/types';
 import { Diagram } from './Diagram';
 import { MermaidDiagram } from './MermaidDiagram';
 import { PresenterVideo } from './PresenterVideo';
+import { PresenterAudio } from './PresenterAudio';
+import { TLDRButton } from './TLDRButton';
 import {
     Shield, MapPin, Code2, Cloud, Database, Globe, Zap,
     TrendingDown, Users, Server, Lock, Rocket, FileCheck,
@@ -187,8 +189,11 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                         {/* Top section: Title + Cards */}
                         <div className="flex flex-col gap-2">
                             <div className="border-b pb-2">
-                                <h2 className="text-xl font-bold text-gray-900 mb-0.5 leading-tight">{slide.title}</h2>
-                                {slide.subtitle && <h3 className="text-base text-gray-600 leading-tight">{slide.subtitle}</h3>}
+                                <div className="flex items-center gap-3">
+                                    <h2 className="text-xl font-bold text-gray-900 leading-tight">{slide.title}</h2>
+                                    <TLDRButton slide={slide} isFirstProject={slide.title.includes('#1 -')} />
+                                </div>
+                                {slide.subtitle && <h3 className="text-base text-gray-600 leading-tight mt-0.5">{slide.subtitle}</h3>}
                             </div>
 
                             <div className="flex flex-row gap-3">
@@ -362,7 +367,16 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
             case 'skills-chips':
                 return (
                     <div className="flex-1 flex flex-col p-12">
-                        <h2 className="text-4xl font-bold text-gray-900 mb-10 text-center">{slide.title}</h2>
+                        <div className="flex items-center justify-center gap-3 mb-10">
+                            <h2 className="text-4xl font-bold text-gray-900">{slide.title}</h2>
+                            {slide.audioUrl && (
+                                <PresenterAudio
+                                    src={slide.audioUrl}
+                                    id={`${slide.id}-audio`}
+                                    subtitles={slide.audioSubtitles}
+                                />
+                            )}
+                        </div>
                         <div className="flex-1 flex flex-col gap-10">
                             {slide.hardSkills && slide.hardSkills.length > 0 && (
                                 <div>
@@ -466,7 +480,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
     };
 
     return (
-        <div className={baseClasses}>
+        <div className={baseClasses} data-slide={slideNumber}>
             {/* Print-only portfolio link */}
             <a
                 href="https://portfolio.wagnersilva.eu"
@@ -475,7 +489,18 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides })
                 portfolio.wagnersilva.eu
             </a>
             {renderContent()}
-            {slide.videoUrl && <PresenterVideo src={slide.videoUrl} id={slide.id} position={slide.videoPosition} />}
+            {slide.videoUrl && (
+                <PresenterVideo
+                    src={slide.videoUrl}
+                    id={slide.id}
+                    position={slide.videoPosition}
+                    subtitles={slide.videoSubtitles}
+                    onEnded={slideNumber === 1 ? () => {
+                        const nextSlide = document.querySelector(`[data-slide="${slideNumber + 1}"]`);
+                        nextSlide?.scrollIntoView({ behavior: 'smooth' });
+                    } : undefined}
+                />
+            )}
         </div>
     );
 };

@@ -55,6 +55,8 @@ export interface PresentationBuildConfig {
     includeSkills?: boolean;
     hardSkills?: string[];
     softSkills?: string[];
+    skillsAudioUrl?: string;
+    skillsAudioSubtitles?: string;
     includeTechStack?: boolean;
     includeCapabilities?: boolean;
     includeGCPExpertise?: boolean;
@@ -88,7 +90,7 @@ export function buildPresentation(config: PresentationBuildConfig): Presentation
 
     // 2.5 Skills (optional)
     if (config.includeSkills && config.hardSkills && config.softSkills) {
-        slides.push(createSkillsSlide(config.hardSkills, config.softSkills));
+        slides.push(createSkillsSlide(config.hardSkills, config.softSkills, config.skillsAudioUrl, config.skillsAudioSubtitles));
     }
 
     // 3. Why Company (optional)

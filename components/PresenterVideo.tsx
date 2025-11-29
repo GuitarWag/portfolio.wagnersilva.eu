@@ -6,10 +6,18 @@ import { useVideoContext } from './VideoContext';
 
 type VideoPosition = 'tr' | 'br' | 'bl' | 'tl' | 'center';
 
+interface Cue {
+    start: number;
+    end: number;
+    text: string;
+}
+
 interface PresenterVideoProps {
     src: string;
     id: string;
     position?: VideoPosition;
+    subtitles?: string;
+    onEnded?: () => void;
 }
 
 const positionClasses: Record<VideoPosition, string> = {
@@ -20,11 +28,118 @@ const positionClasses: Record<VideoPosition, string> = {
     center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
 };
 
-export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br' }) => {
+// Parse VTT timestamp to seconds
+function parseTimestamp(timestamp: string): number {
+    const parts = timestamp.split(':');
+    if (parts.length === 3) {
+        const [hours, minutes, rest] = parts;
+        const [seconds, ms] = rest.split('.');
+        return parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds) + parseInt(ms || '0') / 1000;
+    } else if (parts.length === 2) {
+        const [minutes, rest] = parts;
+        const [seconds, ms] = rest.split('.');
+        return parseInt(minutes) * 60 + parseInt(seconds) + parseInt(ms || '0') / 1000;
+    }
+    return 0;
+}
+
+// Parse VTT content into cues
+function parseVTT(content: string): Cue[] {
+    const cues: Cue[] = [];
+    const lines = content.split('\n');
+    let i = 0;
+
+    // Skip WEBVTT header
+    while (i < lines.length && !lines[i].includes('-->')) {
+        i++;
+    }
+
+    while (i < lines.length) {
+        const line = lines[i].trim();
+        if (line.includes('-->')) {
+            const [startStr, endStr] = line.split('-->').map(s => s.trim());
+            const start = parseTimestamp(startStr);
+            const end = parseTimestamp(endStr);
+
+            // Collect text lines
+            const textLines: string[] = [];
+            i++;
+            while (i < lines.length && lines[i].trim() !== '' && !lines[i].includes('-->')) {
+                textLines.push(lines[i].trim());
+                i++;
+            }
+
+            if (textLines.length > 0) {
+                cues.push({ start, end, text: textLines.join(' ') });
+            }
+        } else {
+            i++;
+        }
+    }
+
+    return cues;
+}
+
+export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const { playingVideoId, setPlayingVideoId } = useVideoContext();
+    const { playingVideoId, setPlayingVideoId, setCurrentSubtitle, subtitlesEnabled } = useVideoContext();
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [showStatus, setShowStatus] = useState(true);
+    const [cues, setCues] = useState<Cue[]>([]);
+
+    // Load and parse subtitles
+    useEffect(() => {
+        if (!subtitles) return;
+
+        fetch(subtitles)
+            .then(res => res.text())
+            .then(content => {
+                const parsedCues = parseVTT(content);
+                setCues(parsedCues);
+            })
+            .catch(err => console.error('Failed to load subtitles:', err));
+    }, [subtitles]);
+
+    // Sync subtitles with video time
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video || cues.length === 0) return;
+
+        const handleTimeUpdate = () => {
+            if (!subtitlesEnabled) {
+                setCurrentSubtitle('');
+                return;
+            }
+
+            const currentTime = video.currentTime;
+            const activeCue = cues.find(cue => currentTime >= cue.start && currentTime <= cue.end);
+
+            if (activeCue) {
+                setCurrentSubtitle(activeCue.text);
+            } else {
+                setCurrentSubtitle('');
+            }
+        };
+
+        video.addEventListener('timeupdate', handleTimeUpdate);
+        return () => video.removeEventListener('timeupdate', handleTimeUpdate);
+    }, [cues, subtitlesEnabled, setCurrentSubtitle]);
+
+    // Hide status indicator after 3s
+    useEffect(() => {
+        if (showStatus) {
+            const timer = setTimeout(() => {
+                setShowStatus(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [showStatus]);
+
+    // Show status briefly when play state changes
+    useEffect(() => {
+        setShowStatus(true);
+    }, [isPlaying]);
 
     // Effect to pause this video if another video starts playing
     useEffect(() => {
@@ -36,6 +151,29 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         }
     }, [playingVideoId, id, isPlaying]);
 
+    // Clear subtitle when video stops
+    useEffect(() => {
+        if (!isPlaying) {
+            setCurrentSubtitle('');
+        }
+    }, [isPlaying, setCurrentSubtitle]);
+
+    // Handle video ended
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const handleEnded = () => {
+            setIsPlaying(false);
+            setPlayingVideoId(null);
+            setCurrentSubtitle('');
+            onEnded?.();
+        };
+
+        video.addEventListener('ended', handleEnded);
+        return () => video.removeEventListener('ended', handleEnded);
+    }, [onEnded, setPlayingVideoId, setCurrentSubtitle]);
+
     const toggleMute = () => {
         if (videoRef.current) {
             videoRef.current.muted = !videoRef.current.muted;
@@ -46,7 +184,6 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
     const togglePlay = () => {
         if (videoRef.current) {
             if (videoRef.current.paused) {
-                // Stop any other playing video first
                 setPlayingVideoId(id);
                 videoRef.current.play();
                 setIsPlaying(true);
@@ -70,8 +207,8 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
             {/* Gradient Overlay */}
             <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 pointer-events-none ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`} />
 
-            {/* Status Indicator */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg z-50">
+            {/* Status Indicator - Below video, fades after 3s */}
+            <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg z-50 transition-opacity duration-500 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
                 <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-gray-400'}`}></div>
                 <span className="text-[10px] text-white font-bold tracking-widest">
                     {isPlaying ? 'LIVE' : 'PAUSED'}

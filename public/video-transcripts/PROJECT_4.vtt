@@ -1,0 +1,109 @@
+WEBVTT
+
+1
+00:00:00.050 --> 00:00:02.060
+GCP cost optimization.
+
+2
+00:00:02.170 --> 00:00:02.590
+Yes.
+
+3
+00:00:02.620 --> 00:00:10.570
+So for this big customer in Germany,
+we had this task a few years ago, five
+
+4
+00:00:10.570 --> 00:00:16.450
+years ago or six, I don't actually
+remember when it started exactly,
+
+5
+00:00:16.450 --> 00:00:23.040
+but we had this huge ecosystem that
+ran on premise and on a very old
+
+6
+00:00:23.490 --> 00:00:24.870
+data center in Germany.
+
+7
+00:00:24.870 --> 00:00:31.160
+So they were very worried that the
+hardware would fail and all their
+
+8
+00:00:31.160 --> 00:00:33.840
+work would be destroyed actually.
+
+9
+00:00:33.840 --> 00:00:42.430
+So we started a very huge transfer of
+resources to Google Cloud back then.
+
+10
+00:00:42.430 --> 00:00:46.630
+The goal back then was just
+make sure everything was secure,
+
+11
+00:00:46.630 --> 00:00:49.510
+transfer to Google Cloud, implement
+the solutions and everything.
+
+12
+00:00:49.510 --> 00:00:57.250
+So when it was done, and after that we
+started to optimize every time
+
+13
+00:00:57.520 --> 00:00:59.410
+we could about costs and everything.
+
+14
+00:00:59.410 --> 00:01:07.480
+So in the last round of the optimization,
+I was able to actually push some
+
+15
+00:01:07.480 --> 00:01:12.305
+ideas that I had for this, all this
+period, and they were mostly all
+
+16
+00:01:12.305 --> 00:01:16.495
+approved and I was able to make a
+very huge impact in their annual bill.
+
+17
+00:01:16.495 --> 00:01:18.625
+So it was really nice.
+
+18
+00:01:18.675 --> 00:01:23.355
+But most on this, most of the
+skill here is actually this active
+
+19
+00:01:24.045 --> 00:01:27.705
+monitoring of the system, knowing
+how to put labels and everything.
+
+20
+00:01:28.185 --> 00:01:31.065
+So you can have a very granular
+
+21
+00:01:32.460 --> 00:01:39.540
+response of how exactly this system
+is spending resources regarding money.
+
+22
+00:01:39.540 --> 00:01:44.140
+So it's a project that I'm
+really proud of the impact that
+
+23
+00:01:44.140 --> 00:01:45.760
+caused into this company.
+

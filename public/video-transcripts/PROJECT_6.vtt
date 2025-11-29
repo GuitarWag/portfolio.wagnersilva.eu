@@ -1,0 +1,96 @@
+WEBVTT
+
+1
+00:00:00.050 --> 00:00:02.660
+Reusable SFTP architecture.
+
+2
+00:00:03.350 --> 00:00:11.710
+So our biggest client in Germany, they
+have a lot of SFTP targets that they
+
+3
+00:00:11.950 --> 00:00:14.620
+have to fetch data on a daily basis.
+
+4
+00:00:14.950 --> 00:00:17.595
+And they are all mostly financial data.
+
+5
+00:00:17.860 --> 00:00:24.750
+So it's a very critical operation in
+terms of security and data loss for us.
+
+6
+00:00:24.750 --> 00:00:31.264
+A system was built to fetch data
+in the SFTP server using Cloud Run
+
+7
+00:00:31.264 --> 00:00:38.414
+jobs and another validation flow
+with Dataflow before inserting
+
+8
+00:00:38.414 --> 00:00:40.819
+them into BigQuery securely.
+
+9
+00:00:40.994 --> 00:00:45.214
+So the basic structure here is simple.
+
+10
+00:00:45.214 --> 00:00:45.560
+We have
+
+11
+00:00:46.849 --> 00:00:51.619
+a Python solution that was written by
+me to actually connect with the SFTP
+
+12
+00:00:51.619 --> 00:00:58.159
+clients, synchronize the data, and then
+streams through our infrastructure.
+
+13
+00:00:59.089 --> 00:01:04.370
+The biggest pain point here was
+the connectivity with their server.
+
+14
+00:01:04.560 --> 00:01:10.530
+So they were in another
+Google Cloud project
+
+15
+00:01:11.400 --> 00:01:16.699
+in another VPC network with
+some overlapping IPs into the VPC.
+
+16
+00:01:16.699 --> 00:01:23.969
+So a very specific connector was written
+with Cloud NAT and VPC connector, so we
+
+17
+00:01:23.969 --> 00:01:30.809
+would have always the same outbound IP and
+things will not overlap over the network.
+
+18
+00:01:30.809 --> 00:01:38.160
+So this solution, it worked really well
+for the first specific case, which was
+
+19
+00:01:38.565 --> 00:01:45.145
+a very famous Korean electronics
+manufacturer, and then was quickly
+
+20
+00:01:45.505 --> 00:01:53.405
+implemented into the other processes that
+involved SFTP sync of these types of data.
+
