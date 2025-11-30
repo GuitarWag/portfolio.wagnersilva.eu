@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+npm-debug.log
+.DS_Store
+*.log
+.cache
+dist
+build
+.claude
+.serena
+server.log
