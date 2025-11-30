@@ -1,20 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { rateLimiter, RateLimitPresets, getClientIdentifier } from '@/lib/rate-limit';
-import { pipeline } from '@huggingface/transformers';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY! });
-
-// Initialize TTS pipeline (cached after first load)
-let ttsModel: any = null;
-async function getTTSModel() {
-    if (!ttsModel) {
-        console.log('Loading TTS model...');
-        ttsModel = await pipeline('text-to-speech', 'Xenova/speecht5_tts');
-        console.log('TTS model loaded successfully');
-    }
-    return ttsModel;
-}
 
 interface VoiceRequest {
     projectTitle: string;
@@ -74,35 +62,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<VoiceResp
         // First, generate one-sentence summary using Gemini
         const oneSentence = await generateOneSentence(body);
 
-        // Generate audio using local TTS model
-        let audioUrl: string | undefined;
-        try {
-            const model = await getTTSModel();
-            const output = await model(oneSentence, {
-                speaker_embeddings: 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/speaker_embeddings.bin'
-            });
-
-            // Convert audio to base64
-            const audioData = output.audio;
-            const sampleRate = output.sampling_rate;
-
-            // Create WAV file
-            const wavBuffer = createWavBuffer(audioData, sampleRate);
-            const base64Audio = Buffer.from(wavBuffer).toString('base64');
-            audioUrl = `data:audio/wav;base64,${base64Audio}`;
-
-            console.log('Local TTS audio generated successfully');
-        } catch (error) {
-            console.error('Local TTS error:', error);
-            // Fall back to client-side Web Speech API
-            audioUrl = undefined;
-        }
+        // Server-side TTS disabled due to ONNX Runtime native binding issues on production
+        // Falling back to client-side Web Speech API
+        const audioUrl = undefined;
 
         return NextResponse.json(
             {
                 oneSentence,
                 audioUrl,
-                duration: estimateDuration(oneSentence),
             },
             { headers }
         );
@@ -173,58 +140,4 @@ Challenge: ${challenge}
 Solution: ${solution}
 
 Reply with ONLY the one sentence, nothing else.`;
-}
-
-function createWavBuffer(audioData: Float32Array, sampleRate: number): ArrayBuffer {
-    const numChannels = 1;
-    const bitsPerSample = 16;
-    const bytesPerSample = bitsPerSample / 8;
-    const blockAlign = numChannels * bytesPerSample;
-    const byteRate = sampleRate * blockAlign;
-    const dataSize = audioData.length * bytesPerSample;
-    const bufferSize = 44 + dataSize;
-
-    const buffer = new ArrayBuffer(bufferSize);
-    const view = new DataView(buffer);
-
-    // RIFF chunk descriptor
-    writeString(view, 0, 'RIFF');
-    view.setUint32(4, 36 + dataSize, true);
-    writeString(view, 8, 'WAVE');
-
-    // fmt sub-chunk
-    writeString(view, 12, 'fmt ');
-    view.setUint32(16, 16, true); // Sub-chunk size
-    view.setUint16(20, 1, true); // Audio format (1 = PCM)
-    view.setUint16(22, numChannels, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, byteRate, true);
-    view.setUint16(32, blockAlign, true);
-    view.setUint16(34, bitsPerSample, true);
-
-    // data sub-chunk
-    writeString(view, 36, 'data');
-    view.setUint32(40, dataSize, true);
-
-    // Write audio data
-    let offset = 44;
-    for (let i = 0; i < audioData.length; i++) {
-        const sample = Math.max(-1, Math.min(1, audioData[i]));
-        view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
-        offset += 2;
-    }
-
-    return buffer;
-}
-
-function writeString(view: DataView, offset: number, string: string) {
-    for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-    }
-}
-
-function estimateDuration(text: string): number {
-    const words = text.split(/\s+/).length;
-    const minutes = words / 127;
-    return Math.ceil(minutes * 60);
 }
