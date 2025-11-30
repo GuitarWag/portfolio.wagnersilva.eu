@@ -69,12 +69,12 @@ export const Diagram: React.FC<DiagramProps> = ({ initialNodes, initialEdges }) 
                 nodeTypes={nodeTypes}
                 fitView
                 fitViewOptions={{
-                    padding: { top: 0.2, bottom: 0.2, left: 0.1, right: 0.5 },
-                    minZoom: 0.3,
-                    maxZoom: 0.9,
+                    padding: 0.15,
+                    minZoom: 0.5,
+                    maxZoom: 0.85,
                 }}
-                minZoom={0.3}
-                maxZoom={1}
+                minZoom={0.5}
+                maxZoom={0.85}
                 proOptions={{ hideAttribution: true }}
                 nodesDraggable={false}
                 nodesConnectable={false}

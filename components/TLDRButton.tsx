@@ -17,6 +17,9 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
     const [isLoading, setIsLoading] = useState(false);
     const [summary, setSummary] = useState('');
     const [error, setError] = useState<string | undefined>();
+    const [paintingUrl, setPaintingUrl] = useState<string | null>(null);
+    const [voiceUrl, setVoiceUrl] = useState<string | null>(null);
+    const [oneSentence, setOneSentence] = useState<string>('');
     const [showTooltip, setShowTooltip] = useState(false);
     const [tooltipDismissed, setTooltipDismissed] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -56,9 +59,12 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
     const handleClick = () => {
         dismissTooltip();
         setIsModalOpen(true);
-        // Reset state when opening
+        // Reset all state when opening
         setError(undefined);
         setSummary('');
+        setPaintingUrl(null);
+        setVoiceUrl(null);
+        setOneSentence('');
         setIsLoading(false);
 
         // Track TL;DR button click
@@ -120,8 +126,136 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
         }
     };
 
+    const handlePaintingGenerate = async () => {
+        setIsLoading(true);
+        setError(undefined);
+        setPaintingUrl(null);
+
+        try {
+            // Fetch transcript from URL if provided
+            let transcriptContent = slide.videoTranscript || '';
+            if (slide.videoTranscriptUrl && !transcriptContent) {
+                try {
+                    const res = await fetch(slide.videoTranscriptUrl);
+                    if (res.ok) {
+                        transcriptContent = await res.text();
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch transcript:', e);
+                }
+            }
+
+            const request = {
+                projectTitle: slide.title,
+                projectSubtitle: slide.subtitle || '',
+                challenge: slide.challenge || [],
+                solution: slide.solution || [],
+                techs: slide.techs || [],
+            };
+
+            const response = await fetch('/api/generate-painting', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request),
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                setError(data.error);
+                trackTLDRError(slide.title, data.error);
+            } else {
+                setPaintingUrl(data.imageUrl);
+                trackTLDRSuccess(slide.title);
+            }
+        } catch (err) {
+            const errorMsg = 'Failed to generate painting. Please try again.';
+            setError(errorMsg);
+            trackTLDRError(slide.title, errorMsg);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleVoiceGenerate = async () => {
+        setIsLoading(true);
+        setError(undefined);
+        setVoiceUrl(null);
+        setOneSentence('');
+
+        try {
+            const request = {
+                projectTitle: slide.title,
+                projectSubtitle: slide.subtitle || '',
+                challenge: slide.challenge || [],
+                solution: slide.solution || [],
+                impact: slide.impact || [],
+                techs: slide.techs || [],
+            };
+
+            const response = await fetch('/api/generate-voice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request),
+            });
+
+            const data = await response.json();
+
+            if (data.error || !response.ok) {
+                const errorMessage = data.error || 'Failed to generate voice';
+                setError(errorMessage);
+                trackTLDRError(slide.title, errorMessage);
+            } else {
+                setOneSentence(data.oneSentence);
+                if (data.audioUrl) {
+                    setVoiceUrl(data.audioUrl);
+                } else {
+                    // Use Web Speech API fallback
+                    const speakText = () => {
+                        const utterance = new SpeechSynthesisUtterance(data.oneSentence);
+                        utterance.rate = 0.8;  // Slower for robotic effect
+                        utterance.pitch = 0.5; // Lower pitch
+                        utterance.volume = 1.0;
+
+                        // Try to find a robotic-sounding voice
+                        const voices = window.speechSynthesis.getVoices();
+                        const roboticVoice = voices.find(v =>
+                            v.name.includes('Daniel') ||
+                            v.name.includes('Google UK English Male') ||
+                            v.name.includes('Microsoft David')
+                        ) || voices[0];
+
+                        if (roboticVoice) {
+                            utterance.voice = roboticVoice;
+                        }
+
+                        window.speechSynthesis.speak(utterance);
+                    };
+
+                    // Voices might not be loaded yet, wait for them
+                    if (window.speechSynthesis.getVoices().length > 0) {
+                        speakText();
+                    } else {
+                        window.speechSynthesis.onvoiceschanged = () => {
+                            speakText();
+                        };
+                    }
+                }
+                trackTLDRSuccess(slide.title);
+            }
+        } catch (err) {
+            const errorMsg = 'Failed to generate voice. Please try again.';
+            setError(errorMsg);
+            trackTLDRError(slide.title, errorMsg);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleClose = () => {
         setIsModalOpen(false);
+        // Stop any playing speech
+        window.speechSynthesis.cancel();
     };
 
     return (
@@ -161,7 +295,12 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
                 isLoading={isLoading}
                 error={error}
                 projectTitle={slide.title}
+                paintingUrl={paintingUrl}
+                voiceUrl={voiceUrl}
+                oneSentence={oneSentence}
                 onAudienceSelect={handleAudienceSelect}
+                onPaintingGenerate={handlePaintingGenerate}
+                onVoiceGenerate={handleVoiceGenerate}
             />
         </>
     );

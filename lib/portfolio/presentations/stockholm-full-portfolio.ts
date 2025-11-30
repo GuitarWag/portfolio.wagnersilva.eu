@@ -121,6 +121,7 @@ const firstSlideTranscript = `Hey, thank you so much for being here and taking t
 const firstSlideSubtitles = '/video-transcripts/01_FIRST_VIDEO.vtt';
 if (stockholmFullPortfolio.slides.length > 0) {
     stockholmFullPortfolio.slides[0].videoUrl = firstSlideVideo;
+    stockholmFullPortfolio.slides[0].videoPosition = 'bl';
     stockholmFullPortfolio.slides[0].videoTranscript = firstSlideTranscript;
     stockholmFullPortfolio.slides[0].videoSubtitles = firstSlideSubtitles;
     stockholmFullPortfolio.slides[0].videoPosterTime = 10; // Show frame at 10 seconds as thumbnail
@@ -139,7 +140,7 @@ if (firstProjectSlide) {
 const ragProjectSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-rag-system');
 if (ragProjectSlide) {
     ragProjectSlide.videoUrl = `${videoBasePath}/PROJECT_2.mp4`;
-    ragProjectSlide.videoPosition = 'br';
+    ragProjectSlide.videoPosition = 'tr';
     ragProjectSlide.videoSubtitles = '/video-transcripts/PROJECT_2.vtt';
     ragProjectSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_2.md';
 }
@@ -148,7 +149,7 @@ if (ragProjectSlide) {
 const triSyncSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-tri-directional-sync');
 if (triSyncSlide) {
     triSyncSlide.videoUrl = `${videoBasePath}/PROJECT_3.mp4`;
-    triSyncSlide.videoPosition = 'br';
+    triSyncSlide.videoPosition = 'tr';
     triSyncSlide.videoSubtitles = '/video-transcripts/PROJECT_3.vtt';
     triSyncSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_3.md';
 }
@@ -185,7 +186,7 @@ if (sftpSlide) {
 const apiIntegrationSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-api-integration');
 if (apiIntegrationSlide) {
     apiIntegrationSlide.videoUrl = `${videoBasePath}/PROJECT_7.mp4`;
-    apiIntegrationSlide.videoPosition = 'br';
+    apiIntegrationSlide.videoPosition = 'tr';
     apiIntegrationSlide.videoSubtitles = '/video-transcripts/PROJECT_7.vtt';
     apiIntegrationSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_7.md';
 }
@@ -194,7 +195,7 @@ if (apiIntegrationSlide) {
 const cicdSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cicd-pipeline');
 if (cicdSlide) {
     cicdSlide.videoUrl = `${videoBasePath}/PROJECT_8.mp4`;
-    cicdSlide.videoPosition = 'br';
+    cicdSlide.videoPosition = 'tr';
     cicdSlide.videoSubtitles = '/video-transcripts/PROJECT_8.vtt';
     cicdSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_8.md';
 }
@@ -203,7 +204,7 @@ if (cicdSlide) {
 const apisixSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-apisix-gateway');
 if (apisixSlide) {
     apisixSlide.videoUrl = `${videoBasePath}/PROJECT_9.mp4`;
-    apisixSlide.videoPosition = 'br';
+    apisixSlide.videoPosition = 'tr';
     apisixSlide.videoSubtitles = '/video-transcripts/PROJECT_9.vtt';
     apisixSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_9.md';
 }
@@ -212,7 +213,7 @@ if (apisixSlide) {
 const cdcSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-cdc-pipeline');
 if (cdcSlide) {
     cdcSlide.videoUrl = `${videoBasePath}/PROJECT_10.mp4`;
-    cdcSlide.videoPosition = 'br';
+    cdcSlide.videoPosition = 'tr';
     cdcSlide.videoSubtitles = '/video-transcripts/PROJECT_10.vtt';
     cdcSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_10.md';
 }
@@ -221,7 +222,7 @@ if (cdcSlide) {
 const dbAnonSlide = stockholmFullPortfolio.slides.find(s => s.id === 'project-db-anonymization');
 if (dbAnonSlide) {
     dbAnonSlide.videoUrl = `${videoBasePath}/PROJECT_11.mp4`;
-    dbAnonSlide.videoPosition = 'br';
+    dbAnonSlide.videoPosition = 'tr';
     dbAnonSlide.videoSubtitles = '/video-transcripts/PROJECT_11.vtt';
     dbAnonSlide.videoTranscriptUrl = '/video-transcripts/PROJECT_11.md';
 }

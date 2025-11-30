@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Sparkles, Lightbulb, FileText, Video, Cpu, ArrowRight, User, Code2 } from 'lucide-react';
+import { X, Sparkles, Lightbulb, FileText, Video, Cpu, ArrowRight, User, Code2, Palette, Volume2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import type { AudienceLevel } from '@/lib/ai/types';
+
+type CreativeMode = 'text' | 'painting' | 'voice';
 
 interface TLDRModalProps {
     isOpen: boolean;
@@ -12,7 +14,12 @@ interface TLDRModalProps {
     isLoading: boolean;
     error?: string;
     projectTitle: string;
+    paintingUrl?: string | null;
+    voiceUrl?: string | null;
+    oneSentence?: string;
     onAudienceSelect?: (level: AudienceLevel) => void;
+    onPaintingGenerate?: () => void;
+    onVoiceGenerate?: () => void;
 }
 
 export const TLDRModal: React.FC<TLDRModalProps> = ({
@@ -22,14 +29,25 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
     isLoading,
     error,
     projectTitle,
-    onAudienceSelect
+    paintingUrl: externalPaintingUrl,
+    voiceUrl: externalVoiceUrl,
+    oneSentence: externalOneSentence,
+    onAudienceSelect,
+    onPaintingGenerate,
+    onVoiceGenerate
 }) => {
     const modalRef = useRef<HTMLDivElement>(null);
     const [activeTab, setActiveTab] = useState<'summary' | 'how-it-works'>('summary');
+    const [selectedMode, setSelectedMode] = useState<CreativeMode | null>(null);
     const [selectedAudience, setSelectedAudience] = useState<AudienceLevel | null>(null);
 
-    // Determine if we should show audience selection
-    const showAudienceSelection = !selectedAudience && !isLoading && !summary && !error;
+    // Use external props passed from parent
+    const paintingUrl = externalPaintingUrl;
+    const voiceUrl = externalVoiceUrl;
+    const oneSentence = externalOneSentence || '';
+
+    // Determine if we should show mode selection
+    const showModeSelection = !selectedMode && !isLoading && !summary && !error && !paintingUrl && !voiceUrl;
 
     // Close on escape key
     useEffect(() => {
@@ -50,9 +68,23 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
     useEffect(() => {
         if (isOpen) {
             setActiveTab('summary');
+            setSelectedMode(null);
             setSelectedAudience(null);
         }
     }, [isOpen]);
+
+    const handleModeClick = (mode: CreativeMode) => {
+        setSelectedMode(mode);
+        if (mode === 'text') {
+            // Keep existing flow - will show audience selection next
+        } else if (mode === 'painting') {
+            // Call parent handler to generate painting
+            onPaintingGenerate?.();
+        } else if (mode === 'voice') {
+            // Call parent handler to generate voice
+            onVoiceGenerate?.();
+        }
+    };
 
     const handleAudienceClick = (level: AudienceLevel) => {
         setSelectedAudience(level);
@@ -75,7 +107,7 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
         >
             <div
                 ref={modalRef}
-                className="relative w-full max-w-2xl max-h-[80vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
+                className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
             >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50">
@@ -133,13 +165,65 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="px-6 py-5 overflow-y-auto max-h-[calc(80vh-200px)] scrollbar-thin">
+                <div className="px-6 py-5 overflow-y-auto max-h-[calc(90vh-180px)] scrollbar-thin">
                     {activeTab === 'summary' && (
                         <>
-                            {/* Audience Selection */}
-                            {showAudienceSelection && (
+                            {/* Creative Mode Selection */}
+                            {showModeSelection && (
                                 <div className="flex flex-col items-center justify-center py-8">
                                     <h4 className="text-lg font-semibold text-gray-900 mb-2">Explain this like I&apos;m...</h4>
+                                    <p className="text-sm text-gray-500 mb-6">Choose how you want to experience this project</p>
+
+                                    <div className="grid grid-cols-3 gap-4 w-full max-w-2xl">
+                                        {/* Text Summary */}
+                                        <button
+                                            onClick={() => handleModeClick('text')}
+                                            className="group flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+                                        >
+                                            <div className="p-3 bg-blue-100 group-hover:bg-blue-200 rounded-full transition-colors">
+                                                <Sparkles className="w-6 h-6 text-blue-600" />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="font-semibold text-gray-900">Reading</p>
+                                                <p className="text-xs text-gray-500 mt-1">AI-generated summary</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Oil Painting */}
+                                        <button
+                                            onClick={() => handleModeClick('painting')}
+                                            className="group flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border-2 border-amber-200 hover:border-amber-400 rounded-xl transition-all"
+                                        >
+                                            <div className="p-3 bg-amber-100 group-hover:bg-amber-200 rounded-full transition-colors">
+                                                <Palette className="w-6 h-6 text-amber-600" />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="font-semibold text-gray-900">Looking at art</p>
+                                                <p className="text-xs text-gray-500 mt-1">1800s oil painting</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Robotic Voice */}
+                                        <button
+                                            onClick={() => handleModeClick('voice')}
+                                            className="group flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
+                                        >
+                                            <div className="p-3 bg-purple-100 group-hover:bg-purple-200 rounded-full transition-colors">
+                                                <Volume2 className="w-6 h-6 text-purple-600" />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="font-semibold text-gray-900">A robot</p>
+                                                <p className="text-xs text-gray-500 mt-1">Robotic TTS voice</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Audience Selection (for text mode) */}
+                            {selectedMode === 'text' && !selectedAudience && !isLoading && !summary && !error && (
+                                <div className="flex flex-col items-center justify-center py-8">
+                                    <h4 className="text-lg font-semibold text-gray-900 mb-2">What&apos;s your background?</h4>
                                     <p className="text-sm text-gray-500 mb-6">Choose your preferred level of detail</p>
 
                                     <div className="grid grid-cols-2 gap-4 w-full max-w-md">
@@ -200,11 +284,54 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                                 </div>
                             )}
 
-                            {summary && !isLoading && !error && (
+                            {summary && !isLoading && !error && selectedMode === 'text' && (
                                 <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-2 prose-ul:my-2 prose-li:text-gray-700 prose-strong:text-gray-900 prose-hr:my-4 prose-hr:border-gray-200">
                                     <ReactMarkdown>
                                         {summary}
                                     </ReactMarkdown>
+                                </div>
+                            )}
+
+                            {/* Oil Painting Display */}
+                            {paintingUrl && selectedMode === 'painting' && !isLoading && (
+                                <div className="flex flex-col items-center justify-center py-4 space-y-3">
+                                    <div className="relative w-full flex justify-center">
+                                        <img
+                                            src={paintingUrl}
+                                            alt="Oil painting representation of the project"
+                                            className="max-h-[calc(90vh-280px)] w-auto object-contain"
+                                        />
+                                    </div>
+                                    <p className="text-sm text-gray-500 italic text-center">
+                                        An artistic interpretation of {projectTitle} as an 1800s oil painting
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Robotic Voice Display */}
+                            {oneSentence && selectedMode === 'voice' && !isLoading && (
+                                <div className="flex flex-col items-center justify-center py-8 space-y-6">
+                                    <div className="p-8 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl">
+                                        <Volume2 className="w-24 h-24 text-purple-400 animate-pulse" />
+                                    </div>
+                                    <div className="max-w-2xl text-center">
+                                        <p className="text-xl font-mono text-gray-700 mb-4">&quot;{oneSentence}&quot;</p>
+                                        <p className="text-xs text-gray-400">- Robotic Voice Synthesis</p>
+                                    </div>
+                                    {voiceUrl && (
+                                        <audio
+                                            controls
+                                            autoPlay
+                                            className="w-full max-w-md"
+                                        >
+                                            <source src={voiceUrl} type="audio/flac" />
+                                            <source src={voiceUrl} type="audio/mpeg" />
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    )}
+                                    <p className="text-sm text-gray-500 italic text-center max-w-md">
+                                        {voiceUrl ? 'Server-generated TTS audio' : 'Using browser text-to-speech'}
+                                    </p>
                                 </div>
                             )}
                         </>
@@ -214,78 +341,61 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
                         <div className="space-y-6">
                             {/* Built by me badge */}
                             <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg">
-                                <span className="text-2xl">🛠️</span>
+                                <span className="text-2xl">🎨</span>
                                 <p className="text-sm font-medium text-gray-700">
-                                    I built this feature to showcase how I approach AI integration in real products.
+                                    Multimodal AI showcase: Experience projects through text, art, or voice — demonstrating creative AI integration.
                                 </p>
                             </div>
 
-                            {/* How it works explanation */}
+                            {/* Three Modes */}
                             <div>
-                                <h4 className="text-base font-semibold text-gray-900 mb-4">The Architecture</h4>
+                                <h4 className="text-base font-semibold text-gray-900 mb-4">Three Creative Modes</h4>
 
-                                {/* Flow diagram */}
-                                <div className="flex flex-col gap-3">
-                                    {/* Step 1 */}
+                                <div className="space-y-3">
+                                    {/* Text Mode */}
                                     <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                                         <div className="p-2 bg-blue-100 rounded-lg shrink-0">
-                                            <FileText className="w-5 h-5 text-blue-600" />
+                                            <Sparkles className="w-5 h-5 text-blue-600" />
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900">1. Project Data</p>
-                                            <p className="text-sm text-gray-600">
-                                                Each project has structured data: context, challenges, solutions, impact metrics, and tech stack. This is the foundation.
+                                        <div className="flex-1">
+                                            <p className="font-medium text-gray-900">📝 Text Summary</p>
+                                            <p className="text-sm text-gray-600 mb-2">
+                                                AI-generated summaries tailored to your audience level (technical/non-technical).
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                <strong>Tech:</strong> Gemini 2.5 Flash + video transcripts + prompt engineering
                                             </p>
                                         </div>
                                     </div>
 
-                                    <div className="flex justify-center">
-                                        <ArrowRight className="w-5 h-5 text-gray-400 rotate-90" />
-                                    </div>
-
-                                    {/* Step 2 */}
-                                    <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                                        <div className="p-2 bg-green-100 rounded-lg shrink-0">
-                                            <Video className="w-5 h-5 text-green-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900">2. Video Transcription</p>
-                                            <p className="text-sm text-gray-600">
-                                                I recorded video explanations for each project. The transcripts add personal context and nuances that structured data can&apos;t capture.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-center">
-                                        <ArrowRight className="w-5 h-5 text-gray-400 rotate-90" />
-                                    </div>
-
-                                    {/* Step 3 */}
-                                    <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                                        <div className="p-2 bg-purple-100 rounded-lg shrink-0">
-                                            <Cpu className="w-5 h-5 text-purple-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900">3. AI Processing</p>
-                                            <p className="text-sm text-gray-600">
-                                                Gemini 2.5 Flash receives both data sources with a crafted prompt. It synthesizes a concise summary that captures the essence of each project.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-center">
-                                        <ArrowRight className="w-5 h-5 text-gray-400 rotate-90" />
-                                    </div>
-
-                                    {/* Step 4 */}
+                                    {/* Painting Mode */}
                                     <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
                                         <div className="p-2 bg-amber-100 rounded-lg shrink-0">
-                                            <Sparkles className="w-5 h-5 text-amber-600" />
+                                            <Palette className="w-5 h-5 text-amber-600" />
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900">4. Real-time Generation</p>
-                                            <p className="text-sm text-gray-600">
-                                                Summaries are generated on-demand via a Next.js API route. I could cache responses since inputs are static per project, but I intentionally generate fresh summaries each time — demonstrating real AI integration, not just serving stored text.
+                                        <div className="flex-1">
+                                            <p className="font-medium text-gray-900">🎨 Oil Painting</p>
+                                            <p className="text-sm text-gray-600 mb-2">
+                                                1800s-style oil paintings with gold frames. Modern tech imagined as Victorian-era art.
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                <strong>Tech:</strong> Gemini 2.5 Flash Image + artistic prompt engineering (no text, portrait 9:16, gold frame)
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Voice Mode */}
+                                    <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
+                                        <div className="p-2 bg-purple-100 rounded-lg shrink-0">
+                                            <Volume2 className="w-5 h-5 text-purple-600" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="font-medium text-gray-900">🤖 Robotic Voice</p>
+                                            <p className="text-sm text-gray-600 mb-2">
+                                                One-sentence robotic summary with local TTS. Stephen Hawking-style synthesis.
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                <strong>Tech:</strong> Gemini 2.5 Flash (summary) + Transformers.js (local TTS model) + WAV encoding
                                             </p>
                                         </div>
                                     </div>
@@ -294,31 +404,47 @@ export const TLDRModal: React.FC<TLDRModalProps> = ({
 
                             {/* Why this matters */}
                             <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <h5 className="font-medium text-gray-900 mb-2">Why I built this</h5>
-                                <p className="text-sm text-gray-600">
-                                    This feature demonstrates my approach to AI integration: combining structured data with unstructured content (video transcripts) to create genuinely useful outputs. It&apos;s not just a gimmick — it solves a real UX problem of helping busy reviewers quickly understand complex projects.
+                                <h5 className="font-medium text-gray-900 mb-2">Why Multimodal?</h5>
+                                <p className="text-sm text-gray-600 mb-3">
+                                    This showcases how different AI modalities can tell the same story in unique ways. It&apos;s about creative problem-solving and understanding that not everyone consumes information the same way.
                                 </p>
+                                <ul className="text-sm text-gray-600 space-y-1">
+                                    <li>• <strong>Text:</strong> Quick, scannable, audience-aware</li>
+                                    <li>• <strong>Art:</strong> Emotional, memorable, visually striking</li>
+                                    <li>• <strong>Voice:</strong> Accessible, hands-free, concise</li>
+                                </ul>
                             </div>
 
                             {/* Tech stack */}
-                            <div className="flex flex-wrap gap-2">
-                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Next.js API Routes</span>
-                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Gemini 2.5 Flash</span>
-                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">TypeScript</span>
-                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Prompt Engineering</span>
-                                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Video Transcription</span>
+                            <div>
+                                <h5 className="text-sm font-medium text-gray-700 mb-2">Technologies Used</h5>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded">Gemini 2.5 Flash</span>
+                                    <span className="px-2 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded">Gemini 2.5 Flash Image</span>
+                                    <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded">Transformers.js</span>
+                                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Next.js API Routes</span>
+                                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">TypeScript</span>
+                                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Web Speech API</span>
+                                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">Rate Limiting</span>
+                                </div>
                             </div>
                         </div>
                     )}
                 </div>
 
                 {/* Footer */}
-                {!isLoading && !showAudienceSelection && (
+                {!isLoading && !showModeSelection && (
                     <div className="px-6 py-3 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
                         <span className="text-xs text-gray-400 flex items-center gap-1">
                             <Sparkles className="w-3 h-3" />
                             {activeTab === 'summary'
-                                ? `Generated by AI · ${selectedAudience === 'technical' ? 'Technical details' : 'Plain language'}`
+                                ? selectedMode === 'text' && selectedAudience
+                                    ? `Generated by AI · ${selectedAudience === 'technical' ? 'Technical details' : 'Plain language'}`
+                                    : selectedMode === 'painting'
+                                    ? 'Generated by Imagen · 1800s oil painting style'
+                                    : selectedMode === 'voice'
+                                    ? 'Generated by TTS · Robotic voice synthesis'
+                                    : 'AI-powered multimodal showcase'
                                 : 'Built by Wagner Silva'}
                         </span>
                         <button

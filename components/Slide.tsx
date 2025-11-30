@@ -31,7 +31,7 @@ interface SlideProps {
 }
 
 export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, presentationId }) => {
-    const baseClasses = "w-full h-screen flex flex-col p-16 bg-white overflow-hidden break-after-page page-break-after-always relative";
+    const baseClasses = "w-full min-h-screen flex flex-col p-16 bg-white overflow-visible break-after-page page-break-after-always relative";
 
     const renderContent = () => {
         switch (slide.layout) {
@@ -241,7 +241,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                 );
             case 'project-detail':
                 return (
-                    <div className="flex-1 flex flex-col gap-3 p-6 overflow-hidden">
+                    <div className="flex-1 flex flex-col gap-3 p-6 overflow-visible">
                         {/* Top section: Title + Cards */}
                         <div className="flex flex-col gap-2">
                             <div className="border-b pb-2">
@@ -259,7 +259,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                             <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
                                             Context & Overview
                                         </h4>
-                                        <ul className="space-y-1 text-gray-800 text-sm leading-relaxed">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug">
                                             {slide.context.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-gray-500 mr-2 mt-0.5 flex-shrink-0">•</span>
@@ -278,7 +278,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                             <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                                             Challenge
                                         </h4>
-                                        <ul className="space-y-1.5 text-gray-800 text-sm leading-relaxed">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug">
                                             {slide.challenge.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-red-600 mr-2 mt-0.5 flex-shrink-0 font-bold">•</span>
@@ -295,7 +295,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                                             Solution
                                         </h4>
-                                        <ul className="space-y-1.5 text-gray-800 text-sm leading-relaxed">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug">
                                             {slide.solution.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-blue-600 mr-2 mt-0.5 flex-shrink-0 font-bold">•</span>
@@ -312,7 +312,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                             <div className="w-2 h-2 bg-green-600 rounded-full"></div>
                                             Impact ⭐
                                         </h4>
-                                        <ul className="space-y-1.5 text-gray-800 text-sm leading-relaxed font-medium">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug font-medium">
                                             {slide.impact.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-green-600 mr-2 mt-0.5 flex-shrink-0 font-bold">✓</span>
@@ -337,7 +337,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
 
                         {/* Bottom section: Diagram */}
                         {(slide.mermaid || slide.diagram || slide.image || slide.detailSections) && (
-                            <div className="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 overflow-hidden shadow-lg">
+                            <div className="h-[350px] bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 overflow-hidden shadow-lg">
                                 {slide.mermaid ? (
                                     <MermaidDiagram chart={slide.mermaid} />
                                 ) : slide.diagram ? (
