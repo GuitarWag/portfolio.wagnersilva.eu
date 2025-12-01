@@ -23,7 +23,7 @@ const config: PresentationBuildConfig = {
     // Include all projects
     projectIds: Object.keys(projectsRegistry),
 
-    includeTechStack: false,
+    includeTechStack: true,
     includeCapabilities: false,
     includeGCPExpertise: false,
     includeRealTimeExperience: false,

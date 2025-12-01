@@ -11,6 +11,7 @@ export { apisixGateway } from './apisix-gateway';
 export { cdcPipeline } from './cdc-pipeline';
 export { dbAnonymization } from './db-anonymization';
 export { sharepointLeadership } from './sharepoint-leadership';
+export { portfolioSystem } from './portfolio-system';
 
 import type { ProjectData } from '../types';
 import { pageBuilder } from './page-builder';
@@ -25,6 +26,7 @@ import { apisixGateway } from './apisix-gateway';
 import { cdcPipeline } from './cdc-pipeline';
 import { dbAnonymization } from './db-anonymization';
 import { sharepointLeadership } from './sharepoint-leadership';
+import { portfolioSystem } from './portfolio-system';
 
 // Registry of all projects by ID
 export const projectsRegistry: Record<string, ProjectData> = {
@@ -40,6 +42,7 @@ export const projectsRegistry: Record<string, ProjectData> = {
     'cdc-pipeline': cdcPipeline,
     'db-anonymization': dbAnonymization,
     'sharepoint-leadership': sharepointLeadership,
+    'portfolio-system': portfolioSystem,
 };
 
 // All projects as array for iteration

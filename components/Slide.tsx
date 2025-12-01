@@ -174,7 +174,16 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 const Icon = card.icon ? iconMap[card.icon] : null;
                                 return (
                                     <div key={index} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center justify-center text-center">
-                                        {Icon && (
+                                        {card.logo && (
+                                            <div className="mb-4">
+                                                <img
+                                                    src={card.logo}
+                                                    alt={card.title || ''}
+                                                    className="w-16 h-16 object-contain"
+                                                />
+                                            </div>
+                                        )}
+                                        {Icon && !card.logo && (
                                             <div className="text-blue-600 mb-4">
                                                 <Icon size={48} strokeWidth={1.5} />
                                             </div>
@@ -196,9 +205,20 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                     </div>
                 );
             case 'two-column':
+                const getTwoColColorClasses = (color?: string) => {
+                    switch (color) {
+                        case 'blue': return 'bg-blue-50 border-blue-200';
+                        case 'green': return 'bg-green-50 border-green-200';
+                        case 'orange': return 'bg-orange-50 border-orange-200';
+                        case 'purple': return 'bg-purple-50 border-purple-200';
+                        case 'gray': return 'bg-gray-50 border-gray-200';
+                        default: return 'bg-gray-50 border-gray-200';
+                    }
+                };
                 return (
                     <div className="flex-1 flex flex-col p-8">
                         <h2 className="text-5xl font-bold text-gray-900 mb-12">{slide.title}</h2>
+                        {slide.subtitle && <h3 className="text-2xl text-gray-600 mb-8">{slide.subtitle}</h3>}
                         <div className="flex flex-row gap-12 flex-1">
                             {slide.columns?.map((col, index) => (
                                 <div key={index} className="flex-1">
@@ -214,10 +234,43 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 </div>
                             ))}
                         </div>
+                        {slide.detailSections && slide.detailSections.length > 0 && (
+                            <div className="mt-8 space-y-6">
+                                {slide.detailSections.map((section, idx) => (
+                                    <div key={idx} className={`p-6 rounded-lg border-2 ${getTwoColColorClasses(section.color)}`}>
+                                        <h3 className="text-2xl font-bold text-gray-800 mb-4">{section.title}</h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                            {section.items.map((item, i) => (
+                                                <div key={i} className="flex items-center gap-3">
+                                                    {section.logos && section.logos[i] && (
+                                                        <img
+                                                            src={section.logos[i]}
+                                                            alt={item.split(' - ')[0]}
+                                                            className="w-10 h-10 object-contain flex-shrink-0"
+                                                        />
+                                                    )}
+                                                    <span className="text-lg text-gray-700">{item}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                         {slide.footer && <div className="mt-8 text-sm text-gray-400">{slide.footer}</div>}
                     </div>
                 );
             case 'three-column':
+                const getColorClasses = (color?: string) => {
+                    switch (color) {
+                        case 'blue': return 'bg-blue-50 border-blue-200';
+                        case 'green': return 'bg-green-50 border-green-200';
+                        case 'orange': return 'bg-orange-50 border-orange-200';
+                        case 'purple': return 'bg-purple-50 border-purple-200';
+                        case 'gray': return 'bg-gray-50 border-gray-200';
+                        default: return 'bg-gray-50 border-gray-200';
+                    }
+                };
                 return (
                     <div className="flex-1 flex flex-col p-8">
                         <h2 className="text-5xl font-bold text-gray-900 mb-12">{slide.title}</h2>
@@ -236,6 +289,29 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 </div>
                             ))}
                         </div>
+                        {slide.detailSections && slide.detailSections.length > 0 && (
+                            <div className="mt-8 space-y-6">
+                                {slide.detailSections.map((section, idx) => (
+                                    <div key={idx} className={`p-6 rounded-lg border-2 ${getColorClasses(section.color)}`}>
+                                        <h3 className="text-2xl font-bold text-gray-800 mb-4">{section.title}</h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                            {section.items.map((item, i) => (
+                                                <div key={i} className="flex items-center gap-3">
+                                                    {section.logos && section.logos[i] && (
+                                                        <img
+                                                            src={section.logos[i]}
+                                                            alt={item.split(' - ')[0]}
+                                                            className="w-10 h-10 object-contain flex-shrink-0"
+                                                        />
+                                                    )}
+                                                    <span className="text-lg text-gray-700">{item}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                         {slide.footer && <div className="mt-8 text-sm text-gray-400">{slide.footer}</div>}
                     </div>
                 );

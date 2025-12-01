@@ -14,6 +14,7 @@ export interface SlideData {
     subtitle?: string;
     cards?: {
         icon?: IconName; // Icon name string for serialization
+        logo?: string; // Optional logo URL for the card
         title?: string;
         value?: string;
         description?: string;
@@ -37,6 +38,7 @@ export interface SlideData {
     detailSections?: {
         title: string;
         items: string[];
+        logos?: string[]; // Optional logo URLs corresponding to items
         color?: 'blue' | 'green' | 'orange' | 'purple' | 'gray';
     }[];
     footer?: string | string[];

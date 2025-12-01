@@ -86,27 +86,29 @@ export function createDataEngineerGlanceSlide(profile: ProfileData): SlideData {
 export function createFullStackTechSlide(): SlideData {
     return {
         id: 'tech-stack',
-        title: 'Tech Stack Overlap',
-        subtitle: '7+ Years Professional Experience',
-        layout: 'two-column',
-        columns: [
+        title: 'Modern Productivity Tools',
+        subtitle: 'Staying Current with Latest AI Code Assistants',
+        layout: 'grid-cards',
+        cards: [
             {
-                title: 'Core Stack',
-                content: [
-                    'GCP (Cloud Run, Functions, AppEngine)',
-                    'TypeScript/JavaScript (Primary Language)',
-                    'React & Node.js (Extensive Production Use)',
-                    'Databases (PostgreSQL, MySQL, BigQuery)'
-                ]
+                logo: '/Claude Symbol SVG.svg',
+                title: 'Claude Code',
+                description: ''
             },
             {
-                title: 'Systems & DevOps',
-                content: [
-                    'Real-time Systems (Pub/Sub, CDC, WebSocket)',
-                    'Docker, Kubernetes (GKE)',
-                    'Git, GitLab CI/CD',
-                    'Infrastructure as Code (Terraform)'
-                ]
+                logo: '/OpenAI Symbol SVG.svg',
+                title: 'OpenAI Codex',
+                description: ''
+            },
+            {
+                logo: '/gemini.png',
+                title: 'Google Gemini Code Assist',
+                description: ''
+            },
+            {
+                logo: '/Warp Symbol SVG.svg',
+                title: 'Warp AI',
+                description: ''
             }
         ]
     };
@@ -148,6 +150,24 @@ export function createDataEngineerTechSlide(): SlideData {
                     'APISIX, REST APIs, SFTP',
                     'Vertex AI, Gemini, RAG'
                 ]
+            }
+        ],
+        detailSections: [
+            {
+                title: 'AI Code Assistants',
+                items: [
+                    'Claude Code - Advanced IDE integration',
+                    'GitHub Copilot - Code completion',
+                    'Google Gemini Code Assist',
+                    'Warp AI Terminal',
+                ],
+                logos: [
+                    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Claude_AI_symbol.svg/1200px-Claude_AI_symbol.svg.png',
+                    'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+                    'https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg',
+                    'https://assets-global.website-files.com/63d75bf5c2e9b07bb401ea4b/646cf28b04c49b78e75e1a5d_warp-logo.png',
+                ],
+                color: 'purple'
             }
         ]
     };
