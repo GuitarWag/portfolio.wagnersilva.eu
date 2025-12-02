@@ -18,15 +18,17 @@ export function VideoProvider({ children }: { children: React.ReactNode }) {
     const [currentSubtitle, setCurrentSubtitle] = useState<string>('');
     const [subtitlesEnabled, setSubtitlesEnabled] = useState<boolean>(true);
 
+    const value = React.useMemo(() => ({
+        playingVideoId,
+        setPlayingVideoId,
+        currentSubtitle,
+        setCurrentSubtitle,
+        subtitlesEnabled,
+        setSubtitlesEnabled
+    }), [playingVideoId, currentSubtitle, subtitlesEnabled]);
+
     return (
-        <VideoContext.Provider value={{
-            playingVideoId,
-            setPlayingVideoId,
-            currentSubtitle,
-            setCurrentSubtitle,
-            subtitlesEnabled,
-            setSubtitlesEnabled
-        }}>
+        <VideoContext.Provider value={value}>
             {children}
         </VideoContext.Provider>
     );

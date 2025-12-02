@@ -30,6 +30,36 @@ interface SlideProps {
     presentationId: string;
 }
 
+// Helper function defined outside component to prevent recreation on render
+const getColorClasses = (color?: string) => {
+    switch (color) {
+        case 'blue': return 'bg-blue-50 border-blue-200';
+        case 'green': return 'bg-green-50 border-green-200';
+        case 'orange': return 'bg-orange-50 border-orange-200';
+        case 'purple': return 'bg-purple-50 border-purple-200';
+        case 'gray': return 'bg-gray-50 border-gray-200';
+        default: return 'bg-gray-50 border-gray-200';
+    }
+};
+
+// Memoized component for parsing links to prevent unnecessary re-renders
+const ParseLinks = React.memo(({ desc }: { desc: string }) => {
+    if (!desc.includes('|')) return <span>{desc}</span>;
+    const parts = desc.split('||');
+    return (
+        <span className="flex flex-col gap-1">
+            {parts.map((part, i) => {
+                const [url, text] = part.split('|');
+                return (
+                    <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        {text}
+                    </a>
+                );
+            })}
+        </span>
+    );
+});
+
 export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, presentationId }) => {
     const baseClasses = "w-full min-h-screen flex flex-col p-16 bg-white overflow-visible break-after-page page-break-after-always relative";
 
@@ -261,16 +291,6 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                     </div>
                 );
             case 'three-column':
-                const getColorClasses = (color?: string) => {
-                    switch (color) {
-                        case 'blue': return 'bg-blue-50 border-blue-200';
-                        case 'green': return 'bg-green-50 border-green-200';
-                        case 'orange': return 'bg-orange-50 border-orange-200';
-                        case 'purple': return 'bg-purple-50 border-purple-200';
-                        case 'gray': return 'bg-gray-50 border-gray-200';
-                        default: return 'bg-gray-50 border-gray-200';
-                    }
-                };
                 return (
                     <div className="flex-1 flex flex-col p-8">
                         <h2 className="text-5xl font-bold text-gray-900 mb-12">{slide.title}</h2>
@@ -573,23 +593,6 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                         <div className="grid grid-cols-2 gap-6 place-content-center">
                             {slide.cards?.map((card, index) => {
                                 const Icon = card.icon ? iconMap[card.icon] : null;
-                                // Parse links from description: "url|text||url|text"
-                                const parseLinks = (desc: string) => {
-                                    if (!desc.includes('|')) return <span>{desc}</span>;
-                                    const parts = desc.split('||');
-                                    return (
-                                        <span className="flex flex-col gap-1">
-                                            {parts.map((part, i) => {
-                                                const [url, text] = part.split('|');
-                                                return (
-                                                    <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                        {text}
-                                                    </a>
-                                                );
-                                            })}
-                                        </span>
-                                    );
-                                };
                                 return (
                                     <div key={index} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center justify-center text-center">
                                         {Icon && (
@@ -599,7 +602,9 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                         )}
                                         <div className="text-5xl font-bold text-blue-600 mb-3">{card.value}</div>
                                         <div className="text-2xl font-semibold text-gray-800 mb-2">{card.title}</div>
-                                        <div className="text-lg text-gray-500">{parseLinks(card.description || '')}</div>
+                                        <div className="text-lg text-gray-500">
+                                            <ParseLinks desc={card.description || ''} />
+                                        </div>
                                     </div>
                                 );
                             })}

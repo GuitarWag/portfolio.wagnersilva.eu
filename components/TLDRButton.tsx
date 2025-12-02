@@ -24,6 +24,32 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
     const [tooltipDismissed, setTooltipDismissed] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
+    const dismissTooltip = React.useCallback(() => {
+        setShowTooltip(false);
+        setTooltipDismissed(true);
+    }, []);
+
+    const handleClick = React.useCallback(() => {
+        dismissTooltip();
+        setIsModalOpen(true);
+        // Reset all state when opening
+        setError(undefined);
+        setSummary('');
+        setPaintingUrl(null);
+        setVoiceUrl(null);
+        setOneSentence('');
+        setIsLoading(false);
+
+        // Track TL;DR button click
+        trackTLDRClick(slide.title);
+    }, [dismissTooltip, slide.title]);
+
+    const handleClose = React.useCallback(() => {
+        setIsModalOpen(false);
+        // Stop any playing speech
+        window.speechSynthesis.cancel();
+    }, []);
+
     // Show tooltip after 1s if first project and visible
     useEffect(() => {
         if (!isFirstProject || tooltipDismissed) return;
@@ -51,27 +77,7 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
         return () => observer.disconnect();
     }, [isFirstProject, tooltipDismissed]);
 
-    const dismissTooltip = () => {
-        setShowTooltip(false);
-        setTooltipDismissed(true);
-    };
-
-    const handleClick = () => {
-        dismissTooltip();
-        setIsModalOpen(true);
-        // Reset all state when opening
-        setError(undefined);
-        setSummary('');
-        setPaintingUrl(null);
-        setVoiceUrl(null);
-        setOneSentence('');
-        setIsLoading(false);
-
-        // Track TL;DR button click
-        trackTLDRClick(slide.title);
-    };
-
-    const handleAudienceSelect = async (level: AudienceLevel) => {
+    const handleAudienceSelect = React.useCallback(async (level: AudienceLevel) => {
         setIsLoading(true);
         setError(undefined);
         setSummary('');
@@ -124,9 +130,9 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [slide]);
 
-    const handlePaintingGenerate = async () => {
+    const handlePaintingGenerate = React.useCallback(async () => {
         setIsLoading(true);
         setError(undefined);
         setPaintingUrl(null);
@@ -175,9 +181,9 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [slide]);
 
-    const handleVoiceGenerate = async () => {
+    const handleVoiceGenerate = React.useCallback(async () => {
         setIsLoading(true);
         setError(undefined);
         setVoiceUrl(null);
@@ -250,13 +256,7 @@ export const TLDRButton: React.FC<TLDRButtonProps> = ({ slide, isFirstProject = 
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const handleClose = () => {
-        setIsModalOpen(false);
-        // Stop any playing speech
-        window.speechSynthesis.cancel();
-    };
+    }, [slide]);
 
     return (
         <>

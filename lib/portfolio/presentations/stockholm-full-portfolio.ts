@@ -121,7 +121,7 @@ const firstSlideTranscript = `Hey, thank you so much for being here and taking t
 const firstSlideSubtitles = '/video-transcripts/01_FIRST_VIDEO.vtt';
 if (stockholmFullPortfolio.slides.length > 0) {
     stockholmFullPortfolio.slides[0].videoUrl = firstSlideVideo;
-    stockholmFullPortfolio.slides[0].videoPosition = 'bl';
+    stockholmFullPortfolio.slides[0].videoPosition = 'br';
     stockholmFullPortfolio.slides[0].videoTranscript = firstSlideTranscript;
     stockholmFullPortfolio.slides[0].videoSubtitles = firstSlideSubtitles;
     stockholmFullPortfolio.slides[0].videoPosterTime = 10; // Show frame at 10 seconds as thumbnail

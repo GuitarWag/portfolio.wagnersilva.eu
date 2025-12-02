@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Bot, X, Send, Sparkles } from 'lucide-react';
 import { TextTypeAnimation } from './TextTypeAnimation';
 import type { RecommendResponse } from '@/app/api/recommend/route';
@@ -18,6 +18,13 @@ interface Message {
     recommendations?: RecommendResponse['recommendations'];
 }
 
+// Animation delay styles defined outside component for reference stability
+const animationDelayStyles = {
+    first: { animationDelay: '0ms' },
+    second: { animationDelay: '150ms' },
+    third: { animationDelay: '300ms' },
+};
+
 export function AIAgent({ presentationId }: AIAgentProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
@@ -33,15 +40,15 @@ export function AIAgent({ presentationId }: AIAgentProps) {
     const [currentResponse, setCurrentResponse] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const scrollToBottom = () => {
+    const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+    }, []);
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, currentResponse]);
+    }, [messages, currentResponse, scrollToBottom]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || state === 'thinking') return;
 
@@ -110,9 +117,9 @@ export function AIAgent({ presentationId }: AIAgentProps) {
             setMessages(prev => [...prev, errorMessage]);
             setTimeout(() => setState('idle'), 2000);
         }
-    };
+    }, [input, state]);
 
-    const handleProjectClick = (projectId: string) => {
+    const handleProjectClick = useCallback((projectId: string) => {
         // Find the project slide element
         const projectElement = document.getElementById(`project-${projectId}`);
         if (projectElement) {
@@ -120,12 +127,18 @@ export function AIAgent({ presentationId }: AIAgentProps) {
             // Close the agent after navigation
             setTimeout(() => setIsMinimized(true), 500);
         }
-    };
+    }, []);
+
+    const handleOpen = useCallback(() => setIsOpen(true), []);
+    const handleClose = useCallback(() => setIsOpen(false), []);
+    const handleMinimize = useCallback(() => setIsMinimized(true), []);
+    const handleMaximize = useCallback(() => setIsMinimized(false), []);
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value), []);
 
     if (!isOpen) {
         return (
             <button
-                onClick={() => setIsOpen(true)}
+                onClick={handleOpen}
                 className="no-print fixed bottom-6 right-6 z-[60] bg-gradient-to-br from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
                 aria-label="Open AI Assistant"
             >
@@ -141,7 +154,7 @@ export function AIAgent({ presentationId }: AIAgentProps) {
     if (isMinimized) {
         return (
             <button
-                onClick={() => setIsMinimized(false)}
+                onClick={handleMaximize}
                 className="no-print fixed bottom-6 right-6 z-[60] bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
             >
                 <Bot className="w-5 h-5" />
@@ -173,7 +186,7 @@ export function AIAgent({ presentationId }: AIAgentProps) {
                 </div>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => setIsMinimized(true)}
+                        onClick={handleMinimize}
                         className="hover:bg-white/20 p-1 rounded transition-colors"
                         aria-label="Minimize"
                     >
@@ -182,7 +195,7 @@ export function AIAgent({ presentationId }: AIAgentProps) {
                         </svg>
                     </button>
                     <button
-                        onClick={() => setIsOpen(false)}
+                        onClick={handleClose}
                         className="hover:bg-white/20 p-1 rounded transition-colors"
                         aria-label="Close"
                     >
@@ -199,11 +212,10 @@ export function AIAgent({ presentationId }: AIAgentProps) {
                         className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div
-                            className={`max-w-[80%] rounded-2xl p-3 ${
-                                msg.type === 'user'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-white text-gray-800 shadow-sm border border-gray-200'
-                            }`}
+                            className={`max-w-[80%] rounded-2xl p-3 ${msg.type === 'user'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-white text-gray-800 shadow-sm border border-gray-200'
+                                }`}
                         >
                             {msg.type === 'agent' && idx === messages.length - 1 && state === 'responding' ? (
                                 <TextTypeAnimation
@@ -254,9 +266,9 @@ export function AIAgent({ presentationId }: AIAgentProps) {
                         <div className="bg-white text-gray-800 rounded-2xl p-3 shadow-sm border border-gray-200">
                             <div className="flex items-center gap-2">
                                 <div className="flex gap-1">
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={animationDelayStyles.first}></span>
+                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={animationDelayStyles.second}></span>
+                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={animationDelayStyles.third}></span>
                                 </div>
                                 <span className="text-xs text-gray-600">Analyzing your request...</span>
                             </div>
@@ -273,7 +285,7 @@ export function AIAgent({ presentationId }: AIAgentProps) {
                     <input
                         type="text"
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={handleInputChange}
                         placeholder="E.g., 'AI projects' or 'cloud architecture'..."
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         disabled={state === 'thinking'}

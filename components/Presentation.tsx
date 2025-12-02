@@ -16,17 +16,29 @@ const PresentationControls: React.FC = () => {
     const { subtitlesEnabled, setSubtitlesEnabled, playingVideoId } = useVideoContext();
     const [menuOpen, setMenuOpen] = useState(false);
 
-    const handlePrint = () => {
+    const handlePrint = React.useCallback(() => {
         window.print();
         setMenuOpen(false);
-    };
+    }, []);
+
+    const toggleSubtitles = React.useCallback(() => {
+        setSubtitlesEnabled(!subtitlesEnabled);
+    }, [subtitlesEnabled, setSubtitlesEnabled]);
+
+    const toggleMenu = React.useCallback(() => {
+        setMenuOpen(prev => !prev);
+    }, []);
+
+    const closeMenu = React.useCallback(() => {
+        setMenuOpen(false);
+    }, []);
 
     return (
         <div className="fixed top-4 right-4 z-50 no-print flex gap-2 items-start">
             {/* CC Button - only show when video is playing */}
             {playingVideoId && (
                 <button
-                    onClick={() => setSubtitlesEnabled(!subtitlesEnabled)}
+                    onClick={toggleSubtitles}
                     className={`${subtitlesEnabled ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-500 hover:bg-gray-600'} text-white font-bold py-2 px-3 rounded shadow-lg transition-colors flex items-center gap-2`}
                     title={subtitlesEnabled ? 'Disable subtitles' : 'Enable subtitles'}
                 >
@@ -37,7 +49,7 @@ const PresentationControls: React.FC = () => {
             {/* 3-dot menu */}
             <div className="relative">
                 <button
-                    onClick={() => setMenuOpen(!menuOpen)}
+                    onClick={toggleMenu}
                     className="bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded shadow-lg transition-colors"
                     title="Menu"
                 >
@@ -49,7 +61,7 @@ const PresentationControls: React.FC = () => {
                         {/* Backdrop to close menu */}
                         <div
                             className="fixed inset-0 z-40"
-                            onClick={() => setMenuOpen(false)}
+                            onClick={closeMenu}
                         />
 
                         {/* Dropdown menu */}

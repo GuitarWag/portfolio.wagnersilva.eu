@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
 import { useVideoContext } from './VideoContext';
 import { trackVideoPlay, trackVideoPause } from '@/lib/analytics';
+import { incrementVideoView } from '@/app/actions';
 
 type VideoPosition = 'tr' | 'br' | 'bl' | 'tl' | 'center';
 
@@ -24,11 +25,20 @@ interface PresenterVideoProps {
 }
 
 const positionClasses: Record<VideoPosition, string> = {
-    tr: 'top-8 right-8',
-    br: 'bottom-8 right-8',
-    bl: 'bottom-8 left-8',
-    tl: 'top-8 left-8',
+    tr: 'top-10 right-10',
+    br: 'bottom-10 right-10',
+    bl: 'bottom-10 left-10',
+    tl: 'top-10 left-10',
     center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+};
+
+// Transform origin for each position to keep video aligned to corner when scaling
+const transformOriginMap: Record<VideoPosition, string> = {
+    tr: 'top right',
+    br: 'bottom right',
+    bl: 'bottom left',
+    tl: 'top left',
+    center: 'center',
 };
 
 // Parse VTT timestamp to seconds
@@ -85,6 +95,7 @@ function parseVTT(content: string): Cue[] {
 
 export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded, projectTitle, posterTime }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const { playingVideoId, setPlayingVideoId, setCurrentSubtitle, subtitlesEnabled } = useVideoContext();
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -92,6 +103,134 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
     const [cues, setCues] = useState<Cue[]>([]);
     const [posterReady, setPosterReady] = useState(!posterTime); // If no posterTime, ready immediately
     const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
+    const [isSticky, setIsSticky] = useState(false);
+    const [stickyPosition, setStickyPosition] = useState<{ top?: number; bottom?: number; right?: number; left?: number } | null>(null);
+    const [lastScrollY, setLastScrollY] = useState(0);
+    const [hasScrolledSincePlay, setHasScrolledSincePlay] = useState(false);
+
+    // Initialize scroll position when video starts playing
+    useEffect(() => {
+        if (isPlaying) {
+            setLastScrollY(window.scrollY);
+            setHasScrolledSincePlay(false);
+        }
+    }, [isPlaying]);
+
+    // Sticky video scroll behavior - only when video is playing
+    useEffect(() => {
+        if (!isPlaying) {
+            setIsSticky(false);
+            setStickyPosition(null);
+            return;
+        }
+
+        const container = containerRef.current;
+        if (!container) return;
+
+        let ticking = false;
+        let lastStickyState = false;
+        const playStartScrollY = window.scrollY;
+
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const currentScrollY = window.scrollY;
+                    const scrollingDown = currentScrollY > lastScrollY;
+
+                    // Check if user has scrolled at least 20px since play
+                    const scrollDistance = Math.abs(currentScrollY - playStartScrollY);
+                    if (!hasScrolledSincePlay && scrollDistance > 20) {
+                        setHasScrolledSincePlay(true);
+                    }
+
+                    setLastScrollY(currentScrollY);
+
+                    const rect = container.getBoundingClientRect();
+                    const slideElement = container.closest('[data-slide]');
+                    const slideRect = slideElement?.getBoundingClientRect();
+
+                    if (!slideRect) {
+                        ticking = false;
+                        return;
+                    }
+
+                    const viewportHeight = window.innerHeight;
+                    const videoHeight = rect.height;
+
+                    // Thresholds
+                    const TOP_THRESHOLD = 80;
+                    const BOTTOM_THRESHOLD = viewportHeight - videoHeight - 80;
+                    const SLIDE_TOP_THRESHOLD = -150;
+                    const SLIDE_BOTTOM_THRESHOLD = viewportHeight + 150;
+
+                    let shouldBeSticky = false;
+                    let newStickyPosition = null;
+
+                    // Only apply sticky logic if user has scrolled since pressing play
+                    if (hasScrolledSincePlay) {
+                        // Check if slide is scrolling out of view
+                        const slideScrolledPastTop = slideRect.top < SLIDE_TOP_THRESHOLD;
+                        const slideScrolledPastBottom = slideRect.bottom > SLIDE_BOTTOM_THRESHOLD;
+
+                        if (scrollingDown) {
+                            // Scrolling DOWN - video should stick to TOP when about to leave viewport at top
+                            if (slideScrolledPastTop && rect.top <= TOP_THRESHOLD) {
+                                shouldBeSticky = true;
+                                // Account for 1.3x scale: video height is 192px, scaled = 250px
+                                // Extra 58px from scale, so offset by ~30px from each edge (58/2)
+                                newStickyPosition = {
+                                    top: 40, // Keep same top distance
+                                    right: position.includes('r') ? 40 : undefined,
+                                    left: position.includes('l') ? 40 : undefined,
+                                };
+                            }
+                        } else {
+                            // Scrolling UP - video should stick to BOTTOM when about to leave viewport at bottom
+                            if (slideScrolledPastBottom && rect.bottom >= BOTTOM_THRESHOLD) {
+                                shouldBeSticky = true;
+                                newStickyPosition = {
+                                    bottom: 40, // Match bottom-10 (2.5rem = 40px)
+                                    right: position.includes('r') ? 40 : undefined,
+                                    left: position.includes('l') ? 40 : undefined,
+                                };
+                            }
+                        }
+
+                        // Check if we should return to normal (slide back in full view)
+                        const slideInView = slideRect.top > -100 && slideRect.bottom < viewportHeight + 100;
+                        if (slideInView) {
+                            shouldBeSticky = false;
+                            newStickyPosition = null;
+                        }
+                    }
+
+                    // Only update if state changed
+                    if (shouldBeSticky !== lastStickyState) {
+                        lastStickyState = shouldBeSticky;
+                        setIsSticky(shouldBeSticky);
+                        setStickyPosition(newStickyPosition);
+                    }
+
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        // Don't run initial check - wait for user to scroll
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [isPlaying, position, lastScrollY, hasScrolledSincePlay]);
+
+    // Reset sticky state when video stops
+    useEffect(() => {
+        if (!isPlaying) {
+            setIsSticky(false);
+            setStickyPosition(null);
+            setHasScrolledSincePlay(false);
+        }
+    }, [isPlaying]);
 
     // Set video to posterTime on load to show that frame as thumbnail
     useEffect(() => {
@@ -210,14 +349,14 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         return () => video.removeEventListener('ended', handleEnded);
     }, [onEnded, setPlayingVideoId, setCurrentSubtitle]);
 
-    const toggleMute = () => {
+    const toggleMute = React.useCallback(() => {
         if (videoRef.current) {
             videoRef.current.muted = !videoRef.current.muted;
             setIsMuted(videoRef.current.muted);
         }
-    };
+    }, []);
 
-    const togglePlay = () => {
+    const togglePlay = React.useCallback(() => {
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 // If first play and posterTime was set, start from beginning
@@ -225,6 +364,10 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
                     videoRef.current.currentTime = 0;
                     setHasPlayedOnce(true);
                 }
+
+                // Track view in Firestore
+                incrementVideoView(id);
+
                 setPlayingVideoId(id);
                 videoRef.current.play();
                 setIsPlaying(true);
@@ -236,10 +379,38 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
                 trackVideoPause(id, projectTitle);
             }
         }
+    }, [hasPlayedOnce, posterTime, id, setPlayingVideoId, projectTitle]);
+
+    // Calculate transform origin based on sticky state
+    const getTransformOrigin = () => {
+        if (!isSticky) {
+            return transformOriginMap[position];
+        }
+        // When sticky, use the edge we're sticking to
+        if (stickyPosition?.top !== undefined) {
+            // Sticking to top
+            return position.includes('r') ? 'top right' : 'top left';
+        } else if (stickyPosition?.bottom !== undefined) {
+            // Sticking to bottom
+            return position.includes('r') ? 'bottom right' : 'bottom left';
+        }
+        return transformOriginMap[position];
     };
 
     return (
-        <div className={`absolute ${positionClasses[position]} w-48 h-48 bg-slate-900 rounded-full overflow-hidden shadow-2xl border-4 border-white/20 z-40 group transition-all hover:scale-105 print:hidden`}>
+        <div
+            ref={containerRef}
+            className={`absolute ${positionClasses[position]} w-48 h-48 bg-slate-900 rounded-full overflow-hidden shadow-2xl border-4 ${isSticky ? 'border-blue-500 shadow-blue-500/50' : 'border-white/20'} group print:hidden`}
+            style={{
+                position: isSticky ? 'fixed' : 'absolute',
+                zIndex: isSticky ? 50 : 40,
+                willChange: isPlaying ? 'transform' : 'auto',
+                transform: isPlaying ? 'scale(1.3)' : 'scale(1)',
+                transformOrigin: getTransformOrigin(),
+                transition: 'transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out',
+                ...(isSticky && stickyPosition ? stickyPosition : {})
+            }}
+        >
             <video
                 ref={videoRef}
                 src={src}
