@@ -1,25 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { rateLimiter, RateLimitPresets, getClientIdentifier } from '@/lib/rate-limit';
-import { pipeline } from '@huggingface/transformers';
+import { getTTSModel } from '@/lib/tts-loader';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY! });
-
-// Initialize TTS pipeline (cached after first load)
-// Model will be downloaded to /tmp/.cache on first run
-let ttsModel: any = null;
-async function getTTSModel() {
-    if (!ttsModel) {
-        console.log('Loading TTS model (Xenova/speecht5_tts)...');
-        // Set cache directory for serverless environments
-        if (process.env.NODE_ENV === 'production') {
-            process.env.TRANSFORMERS_CACHE = '/tmp/.cache';
-        }
-        ttsModel = await pipeline('text-to-speech', 'Xenova/speecht5_tts');
-        console.log('TTS model loaded successfully');
-    }
-    return ttsModel;
-}
 
 interface VoiceRequest {
     projectTitle: string;

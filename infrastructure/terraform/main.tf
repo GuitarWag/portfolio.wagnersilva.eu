@@ -44,7 +44,7 @@ resource "google_compute_instance" "app_server" {
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+      image = "debian-cloud/debian-12"
       size  = 15            # GB - enough for Node.js and app
       type  = "pd-standard" # Standard persistent disk (cheaper than SSD)
     }

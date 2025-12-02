@@ -1,0 +1,37 @@
+# Caddyfile for Cloud Run proxy setup
+# VM acts as load balancer/reverse proxy to Cloud Run backend
+
+portfolio.wagnersilva.eu {
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+
+    # Reverse proxy to Cloud Run
+    # Replace CLOUD_RUN_URL with actual Cloud Run service URL
+    reverse_proxy {$CLOUD_RUN_URL} {
+        # Preserve original headers
+        header_up Host {http.reverse_proxy.upstream.hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        
+        # Health check configuration
+        health_uri /api/health
+        health_interval 30s
+        health_timeout 5s
+        health_status 200
+        
+        # Load balancing (single backend for now, but ready for multiple)
+        lb_policy round_robin
+        
+        # Retry configuration
+        lb_try_duration 10s
+        lb_try_interval 1s
+    }
+}
+
+# Redirect www to non-www
+www.portfolio.wagnersilva.eu {
+    redir https://portfolio.wagnersilva.eu{uri} permanent
+}

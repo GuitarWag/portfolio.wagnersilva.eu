@@ -1,52 +1,71 @@
-# Cloud Build configuration for automated GKE deployment
-# Triggered on every push to main branch
-# Uses Artifact Registry: europe-north2-docker.pkg.dev/wagnersilva-eu/docker
+# Cloud Build configuration for deploying to Cloud Run
+# Usage: gcloud builds submit --config=cloudbuild.yaml
 
 steps:
-  # Step 1: Build the Docker image using production Dockerfile
+  # Step 1: Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-image'
     args:
       - 'build'
+      - '-t'
+      - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:$BUILD_ID'
+      - '-t'
+      - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:latest'
       - '-f'
-      - 'Dockerfile.production'
-      - '-t'
-      - 'europe-north2-docker.pkg.dev/wagnersilva-eu/docker/make-presentations:$COMMIT_SHA'
-      - '-t'
-      - 'europe-north2-docker.pkg.dev/wagnersilva-eu/docker/make-presentations:latest'
+      - 'Dockerfile'
       - '.'
+    timeout: '1200s'
 
-  # Step 2: Push the image to Artifact Registry
+  # Step 2: Push Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-image'
     args:
       - 'push'
-      - '--all-tags'
-      - 'europe-north2-docker.pkg.dev/wagnersilva-eu/docker/make-presentations'
-    waitFor: ['build-image']
+      - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:$BUILD_ID'
 
-  # Step 3: Deploy to GKE
-  - name: 'gcr.io/cloud-builders/gke-deploy'
-    id: 'deploy-to-gke'
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:latest'
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
     args:
       - 'run'
-      - '--filename=k8s/'
-      - '--image=europe-north2-docker.pkg.dev/wagnersilva-eu/docker/make-presentations:$COMMIT_SHA'
-      - '--location=europe-north2'
-      - '--cluster=make-presentations-cluster'
-      - '--namespace=production'
-    waitFor: ['push-image']
+      - 'deploy'
+      - 'portfolio-wagnersilva-eu'
+      - '--image'
+      - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:$BUILD_ID'
+      - '--region'
+      - 'europe-north2'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--max-instances'
+      - '10'
+      - '--min-instances'
+      - '0'
+      - '--timeout'
+      - '300s'
+      - '--set-env-vars'
+      - 'NODE_ENV=production'
+      - '--set-secrets'
+      - 'GOOGLE_GENERATIVE_AI_API_KEY=GOOGLE_GENERATIVE_AI_API_KEY:latest,HUGGING_FACE_HUB_TOKEN=HUGGING_FACE_HUB_TOKEN:latest'
 
-# Build configuration
+# Images to be pushed to Artifact Registry
+images:
+  - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:$BUILD_ID'
+  - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:latest'
+
+# Build timeout
+timeout: '2400s'
+
+# Machine type for faster builds
 options:
   machineType: 'E2_HIGHCPU_8'
   logging: CLOUD_LOGGING_ONLY
-  dynamicSubstitutions: true
-
-# Artifact storage
-images:
-  - 'europe-north2-docker.pkg.dev/wagnersilva-eu/docker/make-presentations:$COMMIT_SHA'
-  - 'europe-north2-docker.pkg.dev/wagnersilva-eu/docker/make-presentations:latest'
-
-# Timeout: 20 minutes for build + push + deploy
-timeout: 1200s

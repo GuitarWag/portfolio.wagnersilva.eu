@@ -5,6 +5,10 @@ const nextConfig = {
         unoptimized: true,
     },
     turbopack: {},
+    // Enable instrumentation to pre-load TTS model on server startup
+    experimental: {
+        instrumentationHook: true,
+    },
     // External packages for serverless/edge runtime compatibility
     serverExternalPackages: ['onnxruntime-node', 'sharp'],
     // Optimize bundle size by excluding unnecessary ONNX binaries
