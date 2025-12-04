@@ -39,13 +39,6 @@ COPY . .
 # Build Next.js application in standalone mode
 RUN npm run build
 
-# Pre-download TTS model (Xenova/speecht5_tts) to be included in image
-# Ensure cache directory exists before running preload script
-RUN mkdir -p /root/.cache/huggingface && \
-    echo "📥 Pre-downloading TTS model..." && \
-    node scripts/preload-tts-model.mjs && \
-    ls -la /root/.cache/huggingface
-
 # Stage 3: Runner
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
@@ -71,12 +64,6 @@ COPY --from=builder --chown=nodejs:nodejs /app/public ./public
 
 # Copy production dependencies with native bindings
 COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
-
-# Copy pre-downloaded TTS model cache from builder
-# This makes the model available immediately without download on first request
-# Create target directory first, then copy
-RUN mkdir -p /home/nodejs/.cache/huggingface
-COPY --from=builder --chown=nodejs:nodejs /root/.cache/huggingface /home/nodejs/.cache/huggingface
 
 # Switch to non-root user
 USER nodejs

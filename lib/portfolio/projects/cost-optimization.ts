@@ -5,7 +5,7 @@ export const costOptimization: ProjectData = {
     title: 'GCP Cost Optimization',
     subtitle: '€15K Annual Savings',
     category: 'infrastructure',
-    tags: ['Redis', 'BigQuery', 'Cloud Monitoring', 'Terraform'],
+    tags: ['Redis', 'BigQuery', 'dbt', 'Cloud Monitoring', 'Terraform'],
     context: [
         'GCP costs were rising 30% YoY, threatening sustainability.',
         'No visibility into per-app costs - resources lacked proper labeling.',
@@ -18,6 +18,7 @@ export const costOptimization: ProjectData = {
     ],
     solution: [
         'Implemented resource labeling across all GCP services for cost allocation',
+        'dbt for billing data modeling & attribution',
         'Artifact Registry cleanup, storage class optimization, log ingestion reduction',
         'CPU/RAM right-sizing & Committed Use Discounts (CUDs) where appropriate'
     ],
@@ -26,13 +27,14 @@ export const costOptimization: ProjectData = {
         'Full cost visibility per application via billing labels',
         'Established automated cost monitoring & alerts'
     ],
-    techs: ['Redis', 'BigQuery', 'Cloud Monitoring', 'Terraform'],
+    techs: ['Redis', 'BigQuery', 'dbt', 'Cloud Monitoring', 'Terraform'],
     detailSections: [
         {
             title: 'Resource Labeling',
             items: [
                 'Labels on Storage buckets, VMs, Cloud Run',
                 'Cloud Run Jobs, Cloud SQL tagged by app',
+                'dbt models for cost attribution',
                 'Cost allocation reports per application',
                 'Billing exports to BigQuery for analysis'
             ]
