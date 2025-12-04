@@ -10,6 +10,8 @@ steps:
       - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:$BUILD_ID'
       - '-t'
       - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:latest'
+      - '--cache-from'
+      - 'europe-north2-docker.pkg.dev/$PROJECT_ID/docker/portfolio-wagnersilva-eu:latest'
       - '-f'
       - 'Dockerfile'
       - '.'
