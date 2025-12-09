@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "next lint",
-    "pdf": "node scripts/export-pdf.cjs http://localhost:3000"
+    "pdf": "node scripts/export-pdf.cjs http://localhost:3001"
   },
   "dependencies": {
     "@google-cloud/firestore": "^8.0.0",
@@ -16,6 +16,8 @@
     "@huggingface/transformers": "^3.8.0",
     "@next/third-parties": "^16.0.5",
     "@xyflow/react": "^12.9.3",
+    "form-data": "^4.0.5",
+    "framer-motion": "^12.23.25",
     "lucide-react": "^0.554.0",
     "mermaid": "^11.12.1",
     "next": "^16.0.5",

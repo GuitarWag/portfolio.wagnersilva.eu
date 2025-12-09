@@ -172,7 +172,7 @@ If you need:
 ```bash
 # Send 15 requests rapidly (should get 10 success, 5 failures)
 for i in {1..15}; do
-  curl -X POST http://localhost:3000/api/recommend \
+  curl -X POST http://localhost:3001/api/recommend \
     -H "Content-Type: application/json" \
     -d '{"userInput":"React projects"}' &
 done

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Bot, X, Send, Sparkles } from 'lucide-react';
+import { Bot, X, Send, Sparkles, Rocket } from 'lucide-react';
 import { TextTypeAnimation } from './TextTypeAnimation';
 import type { RecommendResponse } from '@/app/api/recommend/route';
 
@@ -141,12 +141,34 @@ export function AIAgent({ presentationId }: AIAgentProps) {
                 onClick={handleOpen}
                 className="no-print fixed bottom-6 right-6 z-[60] bg-gradient-to-br from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
                 aria-label="Open AI Assistant"
+                style={{
+                    animation: 'sway 10s ease-in-out infinite',
+                }}
             >
-                <Bot className="w-6 h-6" />
+                <Bot className="w-6 h-6" style={{ animation: 'flip 10s ease-in-out infinite' }} />
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
                 </span>
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                        @keyframes sway {
+                            0% { transform: translateX(0px); }
+                            20% { transform: translateX(-50px); }
+                            50% { transform: translateX(-50px); }
+                            70% { transform: translateX(0px); }
+                            100% { transform: translateX(0px); }
+                        }
+                        @keyframes flip {
+                            0% { transform: scaleX(-1); }
+                            19.9% { transform: scaleX(-1); }
+                            20% { transform: scaleX(-1); }
+                            49.9% { transform: scaleX(-1); }
+                            50% { transform: scaleX(1); }
+                            100% { transform: scaleX(1); }
+                        }
+                    `
+                }} />
             </button>
         );
     }

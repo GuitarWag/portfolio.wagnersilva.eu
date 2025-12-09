@@ -5,7 +5,7 @@ Next.js application deployed on GCP Compute Engine with Caddy reverse proxy for 
 ## Architecture
 
 ```
-Internet → Caddy (HTTPS/443) → Next.js (localhost:3000)
+Internet → Caddy (HTTPS/443) → Next.js (localhost:3001)
                 ↓
         Let's Encrypt SSL
 ```
@@ -245,12 +245,12 @@ gcloud compute ssh portfolio-wagnersilva-eu-server --zone=europe-north1-a \
     --command='sudo caddy validate --config /etc/caddy/Caddyfile'
 ```
 
-### Port 3000 not responding
+### Port 3001 not responding
 
 Check if app is running:
 ```bash
 gcloud compute ssh portfolio-wagnersilva-eu-server --zone=europe-north1-a \
-    --command='curl -I http://localhost:3000'
+    --command='curl -I http://localhost:3001'
 ```
 
 ### Check all services

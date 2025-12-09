@@ -77,6 +77,38 @@ export const trackTLDRError = (projectTitle: string, error: string) => {
     });
 };
 
+export const trackRecruiterCTAOpen = () => {
+    event({
+        action: 'recruiter_cta_open',
+        category: 'Recruiter CTA',
+        label: 'Modal Opened',
+    });
+};
+
+export const trackRecruiterCTASubmit = (hasFile: boolean, hasContact: boolean) => {
+    event({
+        action: 'recruiter_cta_submit',
+        category: 'Recruiter CTA',
+        label: `File: ${hasFile}, Contact: ${hasContact}`,
+    });
+};
+
+export const trackRecruiterCTASuccess = (matchPercentage?: string) => {
+    event({
+        action: 'recruiter_cta_success',
+        category: 'Recruiter CTA',
+        label: matchPercentage || 'Analysis Complete',
+    });
+};
+
+export const trackRecruiterCTAError = (error: string) => {
+    event({
+        action: 'recruiter_cta_error',
+        category: 'Recruiter CTA',
+        label: error,
+    });
+};
+
 // Extend Window interface for TypeScript
 declare global {
     interface Window {

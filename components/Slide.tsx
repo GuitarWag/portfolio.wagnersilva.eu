@@ -7,6 +7,7 @@ import { MermaidDiagram } from './MermaidDiagram';
 import { PresenterVideo } from './PresenterVideo';
 import { PresenterAudio } from './PresenterAudio';
 import { TLDRButton } from './TLDRButton';
+import { RecruiterCTA } from './RecruiterCTA';
 import { FeedbackForm } from './FeedbackForm';
 import {
     Shield, MapPin, Code2, Cloud, Database, Globe, Zap,
@@ -77,6 +78,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 />
                             </div>
                         )}
+                        {slide.id === 'title' && <RecruiterCTA />}
                         {slide.id === 'closing' && (
                             <div className="mb-6">
                                 <img
