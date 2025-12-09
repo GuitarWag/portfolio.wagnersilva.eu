@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
 import { useVideoContext } from './VideoContext';
 import { trackVideoPlay, trackVideoPause } from '@/lib/analytics';
 import { incrementVideoView } from '@/app/actions';
+import { getVideoHlsUrl } from '@/lib/video-utils';
+import Hls from 'hls.js';
 
 type VideoPosition = 'tr' | 'br' | 'bl' | 'tl' | 'center';
 
@@ -58,36 +60,36 @@ function parseTimestamp(timestamp: string): number {
 
 // Parse VTT content into cues
 function parseVTT(content: string): Cue[] {
-    const cues: Cue[] = [];
     const lines = content.split('\n');
+    const cues: Cue[] = [];
     let i = 0;
-
-    // Skip WEBVTT header
-    while (i < lines.length && !lines[i].includes('-->')) {
-        i++;
-    }
 
     while (i < lines.length) {
         const line = lines[i].trim();
+
+        // Look for timestamp line (contains -->)
         if (line.includes('-->')) {
             const [startStr, endStr] = line.split('-->').map(s => s.trim());
             const start = parseTimestamp(startStr);
             const end = parseTimestamp(endStr);
 
-            // Collect text lines
+            // Collect text lines until empty line
             const textLines: string[] = [];
             i++;
-            while (i < lines.length && lines[i].trim() !== '' && !lines[i].includes('-->')) {
+            while (i < lines.length && lines[i].trim() !== '') {
                 textLines.push(lines[i].trim());
                 i++;
             }
 
             if (textLines.length > 0) {
-                cues.push({ start, end, text: textLines.join(' ') });
+                cues.push({
+                    start,
+                    end,
+                    text: textLines.join(' ')
+                });
             }
-        } else {
-            i++;
         }
+        i++;
     }
 
     return cues;
@@ -107,6 +109,120 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
     const [stickyPosition, setStickyPosition] = useState<{ top?: number; bottom?: number; right?: number; left?: number } | null>(null);
     const [lastScrollY, setLastScrollY] = useState(0);
     const [hasScrolledSincePlay, setHasScrolledSincePlay] = useState(false);
+    const [currentQuality, setCurrentQuality] = useState<string>('Auto');
+
+    // Initialize HLS
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video || !src) return;
+
+        // Reset state for new source
+        setCurrentQuality('Auto');
+
+        // Extract clean video name to build HLS URL
+        const filename = src.split('/').pop() || '';
+        const basename = filename.replace('.mp4', '');
+        const hlsUrl = getVideoHlsUrl(basename);
+        // Fallback or legacy URL if HLS fails
+        const legacyUrl = src;
+
+        let hls: Hls | null = null;
+        let isMounted = true;
+
+        const loadLegacyVideo = () => {
+            console.log("HLS failed or not supported, falling back to legacy MP4");
+            // If HLS fails, we might be trying to play a video that hasn't been processed yet
+            // Fallback to the original src (legacy MP4)
+            if (video.src !== legacyUrl) {
+                video.src = legacyUrl;
+                // Force legacy quality badge
+                setCurrentQuality('Legacy');
+            }
+        };
+
+        if (Hls.isSupported()) {
+            hls = new Hls({
+                enableWorker: true,
+                lowLatencyMode: false,
+                backBufferLength: 90,
+            });
+
+            hls.loadSource(hlsUrl);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                // If we have a poster time and haven't played yet, seek to it
+                // We do this after manifest load to avoid race conditions
+                if (posterTime && !hasPlayedOnce && isMounted) {
+                    video.currentTime = posterTime;
+                }
+            });
+
+            hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+                if (!isMounted) return;
+                const level = hls?.levels[data.level];
+                if (level) {
+                    // Map height to label
+                    if (level.height >= 1080) setCurrentQuality('1080p (HLS)');
+                    else if (level.height >= 720) setCurrentQuality('720p (HLS)');
+                    else if (level.height >= 480) setCurrentQuality('480p (HLS)');
+                    else setCurrentQuality(`${level.height}p`);
+                }
+            });
+
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.warn("HLS fatal network error, falling back to MP4");
+                            if (hls) {
+                                hls.destroy();
+                                hls = null;
+                            }
+                            loadLegacyVideo();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.warn("HLS fatal media error, trying to recover");
+                            hls?.recoverMediaError();
+                            break;
+                        default:
+                            if (hls) {
+                                hls.destroy();
+                                hls = null;
+                            }
+                            loadLegacyVideo();
+                            break;
+                    }
+                }
+            });
+
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
+            video.src = hlsUrl;
+            if (isMounted) setCurrentQuality('Auto (HLS)');
+
+            // Check if it actually plays, otherwise fallback
+            const handleError = (e: Event) => {
+                console.warn("Native HLS error, falling back");
+                loadLegacyVideo();
+            };
+
+            video.addEventListener('error', handleError, { once: true });
+            return () => video.removeEventListener('error', handleError);
+
+        } else {
+            // No HLS support
+            loadLegacyVideo();
+        }
+
+        return () => {
+            isMounted = false;
+            if (hls) {
+                hls.destroy();
+            }
+        };
+    }, [src, posterTime, hasPlayedOnce]);
+
 
     // Initialize scroll position when video starts playing
     useEffect(() => {
@@ -116,7 +232,7 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         }
     }, [isPlaying]);
 
-    // Sticky video scroll behavior - only when video is playing
+    // Optimize scroll handler with useCallback
     useEffect(() => {
         if (!isPlaying) {
             setIsSticky(false);
@@ -128,7 +244,7 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         if (!container) return;
 
         let ticking = false;
-        let lastStickyState = false;
+        let lastStickyState = isSticky; // Use local var to avoid closure staleness issues if not careful, though effect re-runs on isPlaying change
         const playStartScrollY = window.scrollY;
 
         const handleScroll = () => {
@@ -167,7 +283,7 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
                     let newStickyPosition = null;
 
                     // Only apply sticky logic if user has scrolled since pressing play
-                    if (hasScrolledSincePlay) {
+                    if (hasScrolledSincePlay || scrollDistance > 20) { // Check distance again here to be safe
                         // Check if slide is scrolling out of view
                         const slideScrolledPastTop = slideRect.top < SLIDE_TOP_THRESHOLD;
                         const slideScrolledPastBottom = slideRect.bottom > SLIDE_BOTTOM_THRESHOLD;
@@ -218,10 +334,9 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
-        // Don't run initial check - wait for user to scroll
 
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [isPlaying, position, lastScrollY, hasScrolledSincePlay]);
+    }, [isPlaying, position, lastScrollY, hasScrolledSincePlay, isSticky]); // Added isSticky to deps
 
     // Reset sticky state when video stops
     useEffect(() => {
@@ -232,14 +347,19 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         }
     }, [isPlaying]);
 
-    // Set video to posterTime on load to show that frame as thumbnail
+    // Poster time seek logic - only for non-HLS or when HLS event not sufficient
     useEffect(() => {
         const video = videoRef.current;
         if (!video || !posterTime) return;
 
+        // If we are using HLS.js, seeking is handled in MANIFEST_PARSED
+        // This is primarily for the non-HLS / fallback path
         const seekToPosterTime = () => {
-            if (video.readyState >= 1) {
-                video.currentTime = posterTime;
+            if (video.readyState >= 1 && !hasPlayedOnce) {
+                // Check if src is NOT a blob (blob means HLS.js is controlling it)
+                if (!video.src.startsWith('blob:')) {
+                    video.currentTime = posterTime;
+                }
             }
         };
 
@@ -260,7 +380,7 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
             video.removeEventListener('loadedmetadata', seekToPosterTime);
             video.removeEventListener('seeked', handleSeeked);
         };
-    }, [posterTime]);
+    }, [posterTime, hasPlayedOnce]);
 
     // Load and parse subtitles
     useEffect(() => {
@@ -349,14 +469,14 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         return () => video.removeEventListener('ended', handleEnded);
     }, [onEnded, setPlayingVideoId, setCurrentSubtitle]);
 
-    const toggleMute = React.useCallback(() => {
+    const toggleMute = useCallback(() => {
         if (videoRef.current) {
             videoRef.current.muted = !videoRef.current.muted;
             setIsMuted(videoRef.current.muted);
         }
     }, []);
 
-    const togglePlay = React.useCallback(() => {
+    const togglePlay = useCallback(() => {
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 // If first play and posterTime was set, start from beginning
@@ -365,13 +485,38 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
                     setHasPlayedOnce(true);
                 }
 
-                // Track view in Firestore
                 incrementVideoView(id);
-
                 setPlayingVideoId(id);
-                videoRef.current.play();
-                setIsPlaying(true);
-                trackVideoPlay(id, projectTitle);
+
+                const attemptPlay = () => {
+                    const playPromise = videoRef.current?.play();
+                    if (playPromise !== undefined) {
+                        playPromise
+                            .then(() => {
+                                setIsPlaying(true);
+                                trackVideoPlay(id, projectTitle);
+                            })
+                            .catch(error => {
+                                // AbortError is commonly caused by interrupting a load (like the seek above)
+                                // We retry once if it's an AbortError to ensure playback starts
+                                if (error.name === 'AbortError') {
+                                    console.log("Play interrupted (likely by seek), retrying...");
+                                    // Small delay to let the interruption settle
+                                    setTimeout(() => {
+                                        videoRef.current?.play()
+                                            .then(() => setIsPlaying(true))
+                                            .catch(e => console.warn("Retry play failed:", e));
+                                    }, 50);
+                                } else {
+                                    console.warn("Play failed:", error);
+                                    setIsPlaying(false);
+                                }
+                            });
+                    }
+                };
+
+                attemptPlay();
+
             } else {
                 videoRef.current.pause();
                 setIsPlaying(false);
@@ -381,56 +526,67 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         }
     }, [hasPlayedOnce, posterTime, id, setPlayingVideoId, projectTitle]);
 
-    // Calculate transform origin based on sticky state
-    const getTransformOrigin = () => {
+    // Memoize transform origin calculation
+    const getTransformOrigin = useCallback(() => {
         if (!isSticky) {
             return transformOriginMap[position];
         }
-        // When sticky, use the edge we're sticking to
         if (stickyPosition?.top !== undefined) {
-            // Sticking to top
             return position.includes('r') ? 'top right' : 'top left';
         } else if (stickyPosition?.bottom !== undefined) {
-            // Sticking to bottom
             return position.includes('r') ? 'bottom right' : 'bottom left';
         }
         return transformOriginMap[position];
-    };
+    }, [isSticky, stickyPosition, position]);
+
+    const containerStyle = useMemo(() => ({
+        position: (isSticky ? 'fixed' : 'absolute') as any,
+        zIndex: isSticky ? 50 : 40,
+        willChange: isPlaying ? 'transform' : 'auto',
+        transform: isPlaying ? 'scale(1.3)' : 'scale(1)',
+        transformOrigin: getTransformOrigin(),
+        transition: 'transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out',
+        ...(isSticky && stickyPosition ? stickyPosition : {})
+    }), [isSticky, isPlaying, getTransformOrigin, stickyPosition]);
 
     return (
         <div
             ref={containerRef}
             className={`absolute ${positionClasses[position]} w-48 h-48 bg-slate-900 rounded-full overflow-hidden shadow-2xl border-4 ${isSticky ? 'border-blue-500 shadow-blue-500/50' : 'border-white/20'} group print:hidden`}
-            style={{
-                position: isSticky ? 'fixed' : 'absolute',
-                zIndex: isSticky ? 50 : 40,
-                willChange: isPlaying ? 'transform' : 'auto',
-                transform: isPlaying ? 'scale(1.3)' : 'scale(1)',
-                transformOrigin: getTransformOrigin(),
-                transition: 'transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out',
-                ...(isSticky && stickyPosition ? stickyPosition : {})
-            }}
+            style={containerStyle}
         >
             <video
                 ref={videoRef}
-                src={src}
                 className="w-full h-full object-cover"
                 playsInline
-                preload={posterTime ? "auto" : "metadata"}
+                // Use metadata preload to avoid race condition with HLS attach
+                preload="metadata"
+            // src attribute removed as it's handled by HLS logic
             />
 
             {/* Gradient Overlay */}
             <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 pointer-events-none ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`} />
 
-            {/* Status Indicator - Below video, fades after 3s */}
-            <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg z-50 transition-opacity duration-500 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
-                <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-gray-400'}`}></div>
-                <span className="text-[10px] text-white font-bold tracking-widest">
-                    {isPlaying ? 'LIVE' : 'PAUSED'}
-                </span>
+            {/* Status Indicator */}
+            <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 transition-opacity duration-500 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
+                {/* Playback Status */}
+                <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg z-50">
+                    <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-gray-400'}`}></div>
+                    <span className="text-[10px] text-white font-bold tracking-widest">
+                        {isPlaying ? 'LIVE' : 'PAUSED'}
+                    </span>
+                </div>
+
+                {/* Quality Indicator */}
+                <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 shadow-lg z-50">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                    <span className="text-[10px] text-white font-bold tracking-wider">
+                        {currentQuality}
+                    </span>
+                </div>
             </div>
 
-            {/* Center Play/Pause Button */}
+            {/* Controls */}
             <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
                 <button
                     onClick={togglePlay}
@@ -452,3 +608,4 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         </div>
     );
 };
+

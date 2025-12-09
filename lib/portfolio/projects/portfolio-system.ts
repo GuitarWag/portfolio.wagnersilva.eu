@@ -19,6 +19,8 @@ export const portfolioSystem: ProjectData = {
     solution: [
         'Next.js 15 with TypeScript - data-driven slide generation from structured JSON',
         'Gemini AI integration for TL;DR summaries & voice narration',
+        'AI Recruiter Check: Analyzes job descriptions to determine candidate fit (Perfect/Good/No Match)',
+        'HLS Adaptive Video: Professional m3u8 streaming with instant startup & bandwidth-aware quality',
         'Multi-layout system (9 layouts) with Mermaid diagrams & ReactFlow visualizations'
     ],
     impact: [
@@ -26,7 +28,7 @@ export const portfolioSystem: ProjectData = {
         'AI-powered: Gemini generates project summaries and narration on-demand',
         'Production-ready: Deployed on Cloud Run with automated CI/CD via Cloud Build'
     ],
-    techs: ['Next.js 15', 'React', 'TypeScript', 'Tailwind CSS', 'Cloud Run', 'Gemini AI', 'Mermaid'],
+    techs: ['Next.js 15', 'React', 'TypeScript', 'Tailwind CSS', 'Cloud Run', 'Gemini AI', 'HLS', 'Mermaid'],
     mermaid: `flowchart LR
     Users[👥 Recruiters &<br/>Hiring Managers]
 
