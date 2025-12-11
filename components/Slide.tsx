@@ -13,7 +13,7 @@ import {
     Shield, MapPin, Code2, Cloud, Database, Globe, Zap,
     TrendingDown, Users, Server, Lock, Rocket, FileCheck,
     Calendar, Mail, CheckCircle2, DollarSign, Sparkles, Bot, Puzzle,
-    GitMerge, LucideIcon
+    GitMerge, LucideIcon, Play
 } from 'lucide-react';
 
 // Icon mapping for serializable icon names
@@ -62,13 +62,13 @@ const ParseLinks = React.memo(({ desc }: { desc: string }) => {
 });
 
 export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, presentationId }) => {
-    const baseClasses = "w-full min-h-screen flex flex-col p-16 bg-white overflow-visible break-after-page page-break-after-always relative";
+    const baseClasses = `w-full min-h-screen flex flex-col ${slide.layout === 'title-only' ? 'p-0' : 'p-4 md:p-16'} bg-white overflow-visible break-after-page page-break-after-always relative`;
 
     const renderContent = () => {
         switch (slide.layout) {
             case 'title-only':
                 return (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center bg-gradient-to-br from-blue-50 to-white">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center bg-gradient-to-br from-blue-50 to-white p-6 md:p-16">
                         {slide.id === 'title' && slide.image && (
                             <div className="mb-8">
                                 <img
@@ -88,15 +88,36 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 />
                             </div>
                         )}
-                        <h1 className="text-7xl font-bold text-gray-900 mb-6">{slide.title}</h1>
+                        <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">{slide.title}</h1>
                         {slide.subtitle && (
-                            <h2 className="text-4xl text-gray-600 font-light">
-                                {slide.subtitle.split('\n').map((line, i) => (
-                                    <span key={i} className={i === 0 ? 'text-5xl font-bold text-gray-800 block mb-2' : ''}>
-                                        {i > 0 && <br />}
-                                        {line}
-                                    </span>
-                                ))}
+                            <h2 className="text-2xl md:text-4xl text-gray-600 font-light">
+                                {/* Mobile: Stacked, independent lines */}
+                                <div className="md:hidden flex flex-col items-center gap-1">
+                                    {slide.subtitle.split('\n').map((line, i) => {
+                                        if (line.includes('|')) {
+                                            return line.split('|').map((role, r) => (
+                                                <span key={`${i}-${r}`} className="text-lg font-medium text-gray-700 leading-snug">
+                                                    {role.trim()}
+                                                </span>
+                                            ));
+                                        }
+                                        return (
+                                            <span key={i} className={i === 0 ? 'text-xl font-bold text-gray-800 block mb-2' : ''}>
+                                                {line}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Desktop: Original layout */}
+                                <div className="hidden md:block">
+                                    {slide.subtitle.split('\n').map((line, i) => (
+                                        <span key={i} className={i === 0 ? 'text-5xl font-bold text-gray-800 block mb-2' : ''}>
+                                            {i > 0 && <br />}
+                                            {line}
+                                        </span>
+                                    ))}
+                                </div>
                             </h2>
                         )}
                         {slide.content && slide.content.length > 0 && (
@@ -197,11 +218,11 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                     </div>
                 );
             case 'grid-cards':
-                const gridCols = slide.cards && slide.cards.length >= 8 ? 'grid-cols-4' : (slide.cards && slide.cards.length > 4 ? 'grid-cols-3' : 'grid-cols-2');
+                const gridColsClass = slide.cards && slide.cards.length >= 8 ? 'lg:grid-cols-4' : (slide.cards && slide.cards.length > 4 ? 'lg:grid-cols-3' : 'lg:grid-cols-2');
                 return (
-                    <div className="flex-1 flex flex-col p-4 overflow-visible">
+                    <div className="flex-1 flex flex-col p-1 md:p-4 overflow-visible">
                         <h2 className="text-3xl font-bold text-gray-900 mb-3 text-center">{slide.title}</h2>
-                        <div className={`grid ${gridCols} gap-4 flex-1`}>
+                        <div className={`grid grid-cols-1 md:grid-cols-2 ${gridColsClass} gap-4 flex-1`}>
                             {slide.cards?.map((card, index) => {
                                 const Icon = card.icon ? iconMap[card.icon] : null;
                                 return (
@@ -339,25 +360,50 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                 );
             case 'project-detail':
                 return (
-                    <div className="flex-1 flex flex-col gap-3 p-6 overflow-visible">
+                    <div className="flex-1 flex flex-col gap-3 p-3 md:p-6 overflow-visible">
                         {/* Top section: Title + Cards */}
                         <div className="flex flex-col gap-2">
                             <div className="border-b pb-2">
                                 <div className="flex items-center gap-3">
-                                    <h2 className="text-xl font-bold text-gray-900 leading-tight">{slide.title}</h2>
+                                    <h2 className="text-xl font-bold text-gray-900 leading-tight min-w-0">{slide.title}</h2>
                                     <TLDRButton slide={slide} isFirstProject={slide.title.includes('#1 -')} />
                                 </div>
                                 {slide.subtitle && <h3 className="text-base text-gray-600 leading-tight mt-0.5">{slide.subtitle}</h3>}
+
+                                {/* Mobile Video Accordion */}
+                                {slide.videoUrl && (
+                                    <div className="lg:hidden mt-3">
+                                        <details className="group">
+                                            <summary className="list-none flex items-center gap-2 text-blue-600 font-semibold cursor-pointer select-none p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                                <div className="p-1 bg-blue-600 text-white rounded-full">
+                                                    <Play size={12} fill="currentColor" />
+                                                </div>
+                                                <span>Watch Project Video</span>
+                                            </summary>
+                                            <div className="mt-3">
+                                                <PresenterVideo
+                                                    src={slide.videoUrl}
+                                                    id={`${slide.id}-mobile`}
+                                                    position="center"
+                                                    mode="inline"
+                                                    subtitles={slide.videoSubtitles}
+                                                    projectTitle={slide.title}
+                                                    posterTime={slide.videoPosterTime}
+                                                />
+                                            </div>
+                                        </details>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex flex-row gap-3">
                                 {slide.context && (
-                                    <div className="w-full bg-gradient-to-r from-slate-50 to-gray-50 p-3 rounded-lg border-l-4 border-gray-500 mb-2 shadow-sm">
+                                    <div className="w-full bg-gradient-to-r from-slate-50 to-gray-50 p-3 rounded-lg border-l-4 border-gray-500 mb-2 shadow-sm min-w-0">
                                         <h4 className="font-bold text-gray-800 mb-2 uppercase text-sm tracking-wider flex items-center gap-2">
-                                            <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+                                            <div className="w-2 h-2 bg-gray-600 rounded-full flex-shrink-0"></div>
                                             Context & Overview
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug break-words">
                                             {slide.context.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-gray-500 mr-2 mt-0.5 flex-shrink-0">•</span>
@@ -369,14 +415,14 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                 )}
                             </div>
 
-                            <div className="flex flex-row gap-3">
+                            <div className="flex flex-col md:flex-row gap-3">
                                 {slide.challenge && (
                                     <div className="flex-1 bg-gradient-to-br from-red-50 to-orange-50 p-3 rounded-lg border-l-4 border-red-500 shadow-md hover:shadow-lg transition-shadow">
                                         <h4 className="font-bold text-red-800 mb-2 uppercase text-sm tracking-wider flex items-center gap-2">
                                             <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                                             Challenge
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug break-words">
                                             {slide.challenge.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-red-600 mr-2 mt-0.5 flex-shrink-0 font-bold">•</span>
@@ -393,7 +439,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                                             Solution
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug break-words">
                                             {slide.solution.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-blue-600 mr-2 mt-0.5 flex-shrink-0 font-bold">•</span>
@@ -410,7 +456,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                             <div className="w-2 h-2 bg-green-600 rounded-full"></div>
                                             Impact ⭐
                                         </h4>
-                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug font-medium">
+                                        <ul className="space-y-0.5 text-gray-800 text-sm leading-snug font-medium break-words">
                                             {slide.impact.map((item, i) => (
                                                 <li key={i} className="flex items-start">
                                                     <span className="text-green-600 mr-2 mt-0.5 flex-shrink-0 font-bold">✓</span>
@@ -435,7 +481,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
 
                         {/* Bottom section: Diagram */}
                         {(slide.mermaid || slide.diagram || slide.image || slide.detailSections) && (
-                            <div className="h-[350px] bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 overflow-hidden shadow-lg">
+                            <div className="h-auto lg:h-[350px] bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 overflow-x-auto shadow-lg">
                                 {slide.mermaid ? (
                                     <MermaidDiagram chart={slide.mermaid} />
                                 ) : slide.diagram ? (
@@ -447,7 +493,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                                         <h3 className="text-base font-semibold text-gray-700 mb-4 uppercase tracking-wider border-b border-gray-300 pb-2">
                                             Actions Taken
                                         </h3>
-                                        <div className="flex-1 grid grid-cols-4 gap-x-6 gap-y-2 content-start">
+                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 content-start">
                                             {slide.detailSections.map((section, idx) => (
                                                 <div key={idx} className="space-y-1">
                                                     <h4 className="font-semibold text-gray-800 text-sm flex items-center gap-2">
@@ -571,7 +617,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                         {slide.subtitle && (
                             <p className="text-2xl text-gray-600 text-center mb-12 italic">{slide.subtitle}</p>
                         )}
-                        <div className="grid grid-cols-3 gap-8 flex-1">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1">
                             {slide.columns?.map((col, index) => (
                                 <div key={index} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col">
                                     <h3 className="text-2xl font-bold text-blue-700 mb-6">{col.title}</h3>
@@ -592,7 +638,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                 return (
                     <div className="flex-1 flex flex-col p-8 overflow-visible">
                         <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">{slide.title}</h2>
-                        <div className="grid grid-cols-2 gap-6 place-content-center">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 place-content-center">
                             {slide.cards?.map((card, index) => {
                                 const Icon = card.icon ? iconMap[card.icon] : null;
                                 return (
@@ -636,6 +682,7 @@ export const Slide: React.FC<SlideProps> = ({ slide, slideNumber, totalSlides, p
                     subtitles={slide.videoSubtitles}
                     projectTitle={slide.title}
                     posterTime={slide.videoPosterTime}
+                    className="hidden lg:block"
                     onEnded={slideNumber === 1 ? () => {
                         const nextSlide = document.querySelector(`[data-slide="${slideNumber + 1}"]`);
                         nextSlide?.scrollIntoView({ behavior: 'smooth' });

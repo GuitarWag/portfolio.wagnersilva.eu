@@ -24,23 +24,25 @@ interface PresenterVideoProps {
     onEnded?: () => void;
     projectTitle?: string;
     posterTime?: number; // Time in seconds to show as poster frame
+    mode?: 'floating' | 'inline';
+    className?: string; // Allow external hiding/styling
 }
 
 const positionClasses: Record<VideoPosition, string> = {
-    tr: 'top-10 right-10',
-    br: 'bottom-10 right-10',
-    bl: 'bottom-10 left-10',
-    tl: 'top-10 left-10',
+    tr: 'top-4 right-4 md:top-10 md:right-10',
+    br: 'top-4 left-4 md:top-auto md:left-auto md:bottom-10 md:right-10', // Mobile: Top-left override, Desktop: Reset to Bottom-right
+    bl: 'bottom-4 left-4 md:bottom-10 md:left-10',
+    tl: 'top-4 left-4 md:top-10 md:left-10',
     center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
 };
 
-// Transform origin for each position to keep video aligned to corner when scaling
-const transformOriginMap: Record<VideoPosition, string> = {
-    tr: 'top right',
-    br: 'bottom right',
-    bl: 'bottom left',
-    tl: 'top left',
-    center: 'center',
+// Transform origin classes for responsive scaling
+const originClasses: Record<VideoPosition, string> = {
+    tr: 'origin-top-right',
+    br: 'origin-top-left md:origin-bottom-right',
+    bl: 'origin-bottom-left',
+    tl: 'origin-top-left',
+    center: 'origin-center',
 };
 
 // Parse VTT timestamp to seconds
@@ -95,7 +97,7 @@ function parseVTT(content: string): Cue[] {
     return cues;
 }
 
-export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded, projectTitle, posterTime }) => {
+export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, position = 'br', subtitles, onEnded, projectTitle, posterTime, mode = 'floating', className = '' }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const { playingVideoId, setPlayingVideoId, setCurrentSubtitle, subtitlesEnabled } = useVideoContext();
@@ -336,7 +338,7 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         window.addEventListener('scroll', handleScroll, { passive: true });
 
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [isPlaying, position, lastScrollY, hasScrolledSincePlay, isSticky]); // Added isSticky to deps
+    }, [isPlaying, position, lastScrollY, hasScrolledSincePlay, isSticky]);
 
     // Reset sticky state when video stops
     useEffect(() => {
@@ -526,33 +528,42 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
         }
     }, [hasPlayedOnce, posterTime, id, setPlayingVideoId, projectTitle]);
 
-    // Memoize transform origin calculation
-    const getTransformOrigin = useCallback(() => {
+    // Get appropriate origin class
+    const getOriginClass = useCallback(() => {
+        if (mode === 'inline') return ''; // No origin scaling for inline
         if (!isSticky) {
-            return transformOriginMap[position];
+            return originClasses[position];
         }
         if (stickyPosition?.top !== undefined) {
-            return position.includes('r') ? 'top right' : 'top left';
+            return position.includes('r') ? 'origin-top-right' : 'origin-top-left';
         } else if (stickyPosition?.bottom !== undefined) {
-            return position.includes('r') ? 'bottom right' : 'bottom left';
+            return position.includes('r') ? 'origin-bottom-right' : 'origin-bottom-left';
         }
-        return transformOriginMap[position];
-    }, [isSticky, stickyPosition, position]);
+        return originClasses[position];
+    }, [isSticky, stickyPosition, position, mode]);
 
-    const containerStyle = useMemo(() => ({
-        position: (isSticky ? 'fixed' : 'absolute') as any,
-        zIndex: isSticky ? 50 : 40,
-        willChange: isPlaying ? 'transform' : 'auto',
-        transform: isPlaying ? 'scale(1.3)' : 'scale(1)',
-        transformOrigin: getTransformOrigin(),
-        transition: 'transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out',
-        ...(isSticky && stickyPosition ? stickyPosition : {})
-    }), [isSticky, isPlaying, getTransformOrigin, stickyPosition]);
+    const containerStyle = useMemo(() => {
+        if (mode === 'inline') return {}; // Minimal styles for inline
+
+        return {
+            position: (isSticky ? 'fixed' : 'absolute') as any,
+            zIndex: isSticky ? 50 : 40,
+            willChange: isPlaying ? 'transform' : 'auto',
+            transform: isPlaying ? 'scale(1.3)' : 'scale(1)',
+            transition: 'transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out',
+            ...(isSticky && stickyPosition ? stickyPosition : {})
+        };
+    }, [isSticky, isPlaying, stickyPosition, mode]);
+
+    // Dynamic classes based on mode
+    const baseContainerClasses = mode === 'floating'
+        ? `absolute ${positionClasses[position]} ${getOriginClass()} w-24 h-24 md:w-48 md:h-48 bg-slate-900 rounded-full overflow-hidden shadow-2xl border-4 ${isSticky ? 'border-blue-500 shadow-blue-500/50' : 'border-white/20'}`
+        : `relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden shadow-lg border-2 border-slate-700`; // Inline styles
 
     return (
         <div
             ref={containerRef}
-            className={`absolute ${positionClasses[position]} w-48 h-48 bg-slate-900 rounded-full overflow-hidden shadow-2xl border-4 ${isSticky ? 'border-blue-500 shadow-blue-500/50' : 'border-white/20'} group print:hidden`}
+            className={`${baseContainerClasses} group print:hidden ${className}`}
             style={containerStyle}
         >
             <video
@@ -567,45 +578,30 @@ export const PresenterVideo: React.FC<PresenterVideoProps> = ({ src, id, positio
             {/* Gradient Overlay */}
             <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 pointer-events-none ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`} />
 
-            {/* Status Indicator */}
-            <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 transition-opacity duration-500 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
-                {/* Playback Status */}
-                <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg z-50">
-                    <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-gray-400'}`}></div>
-                    <span className="text-[10px] text-white font-bold tracking-widest">
-                        {isPlaying ? 'LIVE' : 'PAUSED'}
-                    </span>
-                </div>
-
-                {/* Quality Indicator */}
-                <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 shadow-lg z-50">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                    <span className="text-[10px] text-white font-bold tracking-wider">
-                        {currentQuality}
-                    </span>
-                </div>
+            {/* Quality Badge (visible on hover) */}
+            <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 rounded text-[10px] text-white/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                {currentQuality}
             </div>
 
-            {/* Controls */}
+            {/* Controls Overlay */}
             <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
                 <button
                     onClick={togglePlay}
-                    className="p-4 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all transform hover:scale-110 border border-white/20 shadow-xl"
+                    className="p-4 rounded-full bg-blue-600/90 hover:bg-blue-500 text-white shadow-lg backdrop-blur-sm transition-all transform hover:scale-110"
                 >
-                    {isPlaying ? <Pause size={32} fill="white" className="opacity-90" /> : <Play size={32} fill="white" className="ml-1 opacity-90" />}
+                    {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
                 </button>
             </div>
 
             {/* Bottom Controls (Mute only) */}
-            <div className={`absolute bottom-4 left-0 right-0 flex justify-center transition-opacity duration-300 ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
+            <div className={`absolute bottom-4 left-0 right-0 hidden md:flex justify-center transition-opacity duration-300 ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
                 <button
                     onClick={toggleMute}
                     className="p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-colors border border-white/10"
                 >
-                    {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                    {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                 </button>
             </div>
         </div>
     );
 };
-
